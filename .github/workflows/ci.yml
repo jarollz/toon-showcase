@@ -13,8 +13,30 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  tdd-evidence:
+    name: TDD Evidence Check
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Validate PR body TDD evidence
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: python .github/scripts/validate_tdd_pr_body.py
+
   test:
     name: Go CI
+    needs: [tdd-evidence]
+    if: github.event_name != 'pull_request' || needs.tdd-evidence.result == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 20
 

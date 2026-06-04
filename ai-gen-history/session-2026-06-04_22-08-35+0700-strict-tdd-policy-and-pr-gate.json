@@ -1,0 +1,91 @@
+{
+  "session_timestamp": "2026-06-04_22-08-35+0700",
+  "project": {
+    "name": "toon-showcase",
+    "repo": "jarollz/toon-showcase",
+    "branch": "main"
+  },
+  "topic": "strict-tdd-policy-and-pr-gate",
+  "user_goals": [
+    "expand recommendations into strict TDD enforcement for AI agents",
+    "use strict text pattern validation in PR body instead of committing evidence files",
+    "apply changes now, then invoke ai-gen-history, then commit and push"
+  ],
+  "starting_state": [
+    "AGENTS.md had architecture and coverage guidance but no strict mandatory Red/Green/Refactor contract",
+    "CI workflow only ran Go CI checks and did not validate PR TDD evidence",
+    "repository had no pull request template"
+  ],
+  "collaboration_timeline": [
+    "user asked what to add to AGENTS.md for TDD flow",
+    "discussion expanded to stronger enforcement and CI options without repository file bloat",
+    "user selected strict text pattern approach",
+    "AI added policy sections, PR template, validator script, and CI gate wiring",
+    "user requested ai-gen-history invocation followed by commit and push"
+  ],
+  "decisions": [
+    {
+      "decision": "enforce TDD evidence via PR body structure check",
+      "rationale": "provides merge gate without adding committed evidence files for every feature",
+      "impact": "PRs missing required TDD evidence format fail quickly"
+    },
+    {
+      "decision": "make validator section-aware and strict about placeholders",
+      "rationale": "avoid weak evidence and prevent ambiguity with repeated field names",
+      "impact": "higher consistency and clearer reviewer expectations"
+    },
+    {
+      "decision": "run evidence gate only on pull_request events",
+      "rationale": "push workflows do not have PR body context",
+      "impact": "maintains existing CI behavior on push while enforcing PR quality gate"
+    }
+  ],
+  "implementation": {
+    "files_changed": [
+      "AGENTS.md",
+      ".github/pull_request_template.md",
+      ".github/scripts/validate_tdd_pr_body.py",
+      ".github/workflows/ci.yml",
+      "ai-gen-history/session-2026-06-04_22-08-35+0700-strict-tdd-policy-and-pr-gate.md",
+      "ai-gen-history/session-2026-06-04_22-08-35+0700-strict-tdd-policy-and-pr-gate.json"
+    ],
+    "behavior_changes": [
+      "AGENTS.md now includes mandatory TDD compliance contract, evidence requirements, forbidden actions, exception protocol, and strict done criteria",
+      "pull request template now enforces structured Red/Green/Refactor and final verification entries",
+      "CI includes a pull-request-only TDD evidence job that validates PR body format and values before Go CI job"
+    ]
+  },
+  "verification": [
+    {
+      "command": "python3 .github/scripts/validate_tdd_pr_body.py",
+      "result": "failed as expected when PR_BODY was empty"
+    },
+    {
+      "command": "PR_BODY='<sample valid body>' python3 .github/scripts/validate_tdd_pr_body.py",
+      "result": "passed with complete required sections and fields"
+    },
+    {
+      "command": "git status --short",
+      "result": "showed expected modified and added files"
+    }
+  ],
+  "artifacts_generated": [
+    "ai-gen-history/session-2026-06-04_22-08-35+0700-strict-tdd-policy-and-pr-gate.md",
+    "ai-gen-history/session-2026-06-04_22-08-35+0700-strict-tdd-policy-and-pr-gate.json"
+  ],
+  "risks_tradeoffs": [
+    "strict formatting checks can reject valid evidence written in non-template style",
+    "authors may experience initial friction while adapting to mandatory template",
+    "validator confirms declared evidence structure, not objective truth of test execution"
+  ],
+  "session_knowledge": [
+    "TDD compliance in AI workflows works best with policy + template + CI gate aligned to same required fields",
+    "PR-body enforcement gives strong process control without repository evidence-file sprawl",
+    "section-scoped regex checks are safer than global field scans when field labels repeat across sections",
+    "for this repository, ai-gen-history outputs should be paired timestamped md/json files in ai-gen-history/"
+  ],
+  "next_steps": [
+    "optionally add semantic heuristics to validator for fail/pass tokens",
+    "document one complete PR example using the new template to reduce adoption friction"
+  ]
+}

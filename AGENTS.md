@@ -23,6 +23,35 @@
 - Minimum total coverage is `90.0%` (`Makefile` `COVER_MIN`).
 - Any logic change should include/adjust tests in same affected layer.
 
+## TDD compliance contract (mandatory for feature work)
+- Follow Red -> Green -> Refactor for each behavior change (feature or bug fix).
+- Create or update failing test first in same affected layer before production code change.
+- Run targeted test in Red step and capture failing assertion or error.
+- Implement smallest production code change needed to make that failing test pass.
+- Refactor only after Green; keep behavior unchanged and tests green.
+- Iterate in small behavior slices, not big-bang code drops.
+
+## Required TDD evidence in completion report
+- Each behavior slice must include Red evidence: test name/path, command, expected fail, observed fail.
+- Each behavior slice must include Green evidence: minimal code change, same test command, observed pass.
+- Each behavior slice must include Refactor evidence: what changed and how behavior safety was verified.
+- Final checks must include outcomes for `go test ./...`, `make ci`, and `go run . -records 20 -iters 50 -warmup 5 -no-progress`.
+- Missing evidence means task is incomplete.
+
+## Forbidden for behavior-changing work
+- Do not write production behavior code before failing test exists for that behavior.
+- Do not combine unrelated refactors inside Green step.
+- Do not weaken or delete assertions only to satisfy CI.
+- Do not claim completion without Red/Green/Refactor evidence.
+
+## Exception protocol
+- Non-behavioral tasks (rename/move/comment/format/build plumbing) may use `No-TDD` label with reason.
+- Explicit skip of TDD for behavior changes requires user override phrase `OVERRIDE_TDD`.
+- Even under `OVERRIDE_TDD`, regression test must be added before close.
+
+## Definition of done for behavior changes
+- Done only when failing test first, passing after code, refactor verified, and final checks are green.
+
 ## Fast commands
 - Run full local quality gate: `make ci`.
 - Compile + unit tests only: `go test ./...`.
