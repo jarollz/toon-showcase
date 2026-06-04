@@ -1,0 +1,143 @@
+{
+  "session_timestamp": "2026-06-04_17-46-56+0700",
+  "project": {
+    "name": "toon-showcase",
+    "repo": "jarollz/toon-showcase",
+    "branch": "main"
+  },
+  "topic": "clean-architecture-refactor-coverage-ci",
+  "user_goals": [
+    "make code unit testable",
+    "make code layered",
+    "raise coverage to >=90% with coverpkg",
+    "add Makefile coverage gate",
+    "add GitHub Actions CI",
+    "add README CI badge",
+    "commit and push safely",
+    "capture full session history"
+  ],
+  "architecture": {
+    "approach": "clean architecture (pragmatic)",
+    "layers": [
+      "core/entity",
+      "core/usecase",
+      "adapter/codec",
+      "adapter/presenter",
+      "infrastructure/cli",
+      "main composition root"
+    ],
+    "entrypoint_refactor": {
+      "main_function": "os.Exit(run(...))",
+      "testable_runner": "run(args, stdout, stderr, now) int"
+    }
+  },
+  "coverage": {
+    "required_method": "go test -coverpkg=./... ./...",
+    "final_total_percent": 94.6,
+    "target_percent": 90.0,
+    "target_met": true
+  },
+  "quality_gates": {
+    "makefile_targets": [
+      "test",
+      "test-race",
+      "vet",
+      "cover",
+      "cover-check",
+      "clean",
+      "ci"
+    ],
+    "cover_settings": {
+      "coverpkg": "./...",
+      "covermode": "atomic",
+      "coverprofile": ".coverage.out",
+      "cover_min": 90.0
+    }
+  },
+  "ci": {
+    "workflow_file": ".github/workflows/ci.yml",
+    "triggers": [
+      "pull_request",
+      "push:main"
+    ],
+    "steps": [
+      "checkout",
+      "setup-go (from go.mod)",
+      "go version",
+      "make ci",
+      "make cover || true",
+      "upload .coverage.out artifact"
+    ],
+    "concurrency_cancel_in_progress": true
+  },
+  "validation_runbook": [
+    "go test ./...",
+    "go run . -records 20 -iters 50 -warmup 5 -no-progress",
+    "make cover-check",
+    "go test -coverpkg=./... -coverprofile=cover.out ./...",
+    "go tool cover -func=cover.out"
+  ],
+  "git_delivery": {
+    "checks_before_commit": [
+      "git status --short",
+      "git log --oneline -10",
+      "git diff",
+      "git diff --cached --stat"
+    ],
+    "commit": {
+      "sha": "867f2a6",
+      "message": "refactor: layer app and add 90% coverage CI"
+    },
+    "push": {
+      "remote": "origin",
+      "branch": "main",
+      "result": "success"
+    }
+  },
+  "files_changed": [
+    "main.go",
+    "main_test.go",
+    "Makefile",
+    ".github/workflows/ci.yml",
+    "README.md",
+    "internal/core/entity/model.go",
+    "internal/core/entity/result.go",
+    "internal/core/usecase/types.go",
+    "internal/core/usecase/run.go",
+    "internal/core/usecase/benchmark.go",
+    "internal/core/usecase/dataset.go",
+    "internal/core/usecase/charset.go",
+    "internal/core/usecase/shape.go",
+    "internal/core/usecase/types_test.go",
+    "internal/core/usecase/run_test.go",
+    "internal/core/usecase/benchmark_test.go",
+    "internal/core/usecase/charset_shape_test.go",
+    "internal/adapter/codec/codecs.go",
+    "internal/adapter/codec/codecs_test.go",
+    "internal/adapter/presenter/text.go",
+    "internal/adapter/presenter/csv.go",
+    "internal/adapter/presenter/progress.go",
+    "internal/adapter/presenter/text_test.go",
+    "internal/adapter/presenter/csv_test.go",
+    "internal/adapter/presenter/progress_test.go",
+    "internal/infrastructure/cli/flags.go",
+    "internal/infrastructure/cli/flags_test.go"
+  ],
+  "notable_decisions": [
+    "keep behavior stable during refactor",
+    "prioritize core-flow and error-path test coverage",
+    "use coverpkg aggregate number as source of truth",
+    "gate coverage in Makefile and enforce via CI",
+    "upload coverage artifact for diagnostics"
+  ],
+  "session_knowledge": [
+    "entrypoint seam extraction gives strong test leverage",
+    "adapter contract tests close many coverage gaps quickly",
+    "coverage gate reproducibility improves with single make ci command"
+  ],
+  "next_steps": [
+    "enable branch protection requiring CI",
+    "optionally add per-package coverage minimums",
+    "optionally document CI policy in README"
+  ]
+}
