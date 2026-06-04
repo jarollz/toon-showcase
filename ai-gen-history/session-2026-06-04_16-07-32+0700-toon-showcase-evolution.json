@@ -1,0 +1,100 @@
+{
+  "session_timestamp": "2026-06-04_16-07-32+0700",
+  "project_path": "try-toon-format/toon-showcase",
+  "session_topic": "toon-showcase-evolution",
+  "initial_goal": {
+    "focus": "TOON marshalling/unmarshalling showcase",
+    "baseline_compare": ["speed", "encoded length"]
+  },
+  "final_formats": [
+    "json-compact",
+    "json-pretty",
+    "toon",
+    "yaml",
+    "toml",
+    "xml-compact",
+    "xml-pretty",
+    "messagepack"
+  ],
+  "reports": [
+    "benchmark",
+    "ratio-vs-baseline",
+    "human-delta-vs-baseline",
+    "charset-matrix",
+    "shape-compatibility-matrix"
+  ],
+  "csv_outputs": [
+    "benchmark.csv",
+    "benchmark.charset.csv",
+    "benchmark.shape.csv"
+  ],
+  "baseline": {
+    "default": "toon",
+    "canonical_values": [
+      "toon",
+      "json-compact",
+      "json-pretty",
+      "yaml",
+      "toml",
+      "xml-compact",
+      "xml-pretty",
+      "messagepack"
+    ],
+    "alias_examples": {
+      "json": "json-compact",
+      "yml": "yaml",
+      "xml": "xml-compact",
+      "msgpack": "messagepack"
+    }
+  },
+  "program_flags": [
+    "records",
+    "iters",
+    "warmup",
+    "seed",
+    "indent",
+    "sample-limit",
+    "baseline",
+    "csv",
+    "csv-file",
+    "no-progress"
+  ],
+  "script_defaults": {
+    "preset": "full",
+    "records": 300,
+    "iters": 1200,
+    "warmup": 120,
+    "seed": -1,
+    "csv_mode": "off"
+  },
+  "major_decisions": [
+    "Keep benchmark dataset TOML-safe to avoid dropping lanes from speed table",
+    "Expose unsupported structures in dedicated shape compatibility matrix",
+    "Keep MessagePack char metric as n/a because payload is binary",
+    "Use TOON as default baseline for project focus",
+    "Keep CSV disabled by default in helper script"
+  ],
+  "known_limits": {
+    "toon": [
+      "unsupported control chars in tested cases: U+0000/U+0001",
+      "non-string map keys unsupported"
+    ],
+    "toml": [
+      "nil elements in arrays unsupported",
+      "non-string map keys unsupported"
+    ],
+    "xml": [
+      "limited map-heavy and dynamic mixed shape support in probe matrix"
+    ],
+    "messagepack": [
+      "binary encoding, char-length metric not meaningful"
+    ]
+  },
+  "files_touched": [
+    "main.go",
+    "go.mod",
+    "go.sum",
+    "README.md",
+    "run_showcase.sh"
+  ]
+}
