@@ -1,6 +1,9 @@
 package usecase
 
-import "testing"
+import (
+	"testing"
+	"time"
+)
 
 func TestNormalizeBaselineKey(t *testing.T) {
 	tests := []struct {
@@ -61,6 +64,25 @@ func TestOptionsValidate(t *testing.T) {
 		if err := tc.Validate(); err == nil {
 			t.Fatalf("case %d expected validation error", i)
 		}
+	}
+
+	if err := (Options{Records: 1, Iters: 1, Warmup: 0, IndentSize: 1, Baseline: "toon", CSVMode: "off", OutputExample: true, OutputExampleDir: "   "}).Validate(); err != nil {
+		t.Fatalf("output example should allow empty dir (auto default): %v", err)
+	}
+}
+
+func TestResolveOutputExampleDir(t *testing.T) {
+	now := time.Date(2026, 6, 4, 23, 59, 58, 0, time.FixedZone("UTC+8", 8*60*60))
+
+	got := ResolveOutputExampleDir("", now)
+	want := "output/examples_20260604_235958_+0800"
+	if got != want {
+		t.Fatalf("resolved dir = %q, want %q", got, want)
+	}
+
+	got = ResolveOutputExampleDir(" custom/path ", now)
+	if got != "custom/path" {
+		t.Fatalf("custom dir should be trimmed, got %q", got)
 	}
 }
 

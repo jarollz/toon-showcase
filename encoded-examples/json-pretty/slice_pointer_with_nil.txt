@@ -1,0 +1,13 @@
+{
+  "value": [
+    {
+      "orderId": "X",
+      "customerId": "C",
+      "locale": "zh-CN",
+      "priority": 1,
+      "totalUsd": 9.9,
+      "emojiStatus": "🙂"
+    },
+    null
+  ]
+}

@@ -1,0 +1,7 @@
+[[value]]
+  orderId = "A"
+  customerId = "C1"
+  locale = "en-US"
+  priority = 1
+  totalUsd = 11.2
+  emojiStatus = "🚀"

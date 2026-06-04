@@ -9,16 +9,18 @@ import (
 )
 
 type Options struct {
-	Records     int
-	Iters       int
-	Warmup      int
-	Seed        int64
-	IndentSize  int
-	SampleLimit int
-	NoProgress  bool
-	Baseline    string
-	CSVMode     string
-	CSVFile     string
+	Records          int
+	Iters            int
+	Warmup           int
+	Seed             int64
+	IndentSize       int
+	SampleLimit      int
+	NoProgress       bool
+	Baseline         string
+	CSVMode          string
+	CSVFile          string
+	OutputExample    bool
+	OutputExampleDir string
 }
 
 func (o Options) Validate() error {
@@ -35,13 +37,22 @@ func (o Options) Validate() error {
 	return nil
 }
 
+func ResolveOutputExampleDir(raw string, now time.Time) string {
+	dir := strings.TrimSpace(raw)
+	if dir != "" {
+		return dir
+	}
+	return fmt.Sprintf("output/examples_%s_%s_%s", now.Format("20060102"), now.Format("150405"), now.Format("-0700"))
+}
+
 type RunOutput struct {
-	Results      []entity.BenchmarkResult
-	Baseline     entity.BenchmarkResult
-	Charset      entity.CharsetMatrix
-	Shape        entity.ShapeMatrix
-	ResolvedSeed int64
-	BaselineKey  string
+	Results                  []entity.BenchmarkResult
+	Baseline                 entity.BenchmarkResult
+	Charset                  entity.CharsetMatrix
+	Shape                    entity.ShapeMatrix
+	ResolvedSeed             int64
+	BaselineKey              string
+	ResolvedOutputExampleDir string
 }
 
 type Codec interface {

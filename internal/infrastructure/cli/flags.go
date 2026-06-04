@@ -19,21 +19,25 @@ func Parse(args []string) (usecase.Options, error) {
 	baseline := fs.String("baseline", "toon", "baseline format for ratio/delta: toon|json-compact|json-pretty|yaml|toml|xml-compact|xml-pretty|messagepack")
 	csvMode := fs.String("csv", "off", "csv output mode: off|stdout|file")
 	csvFile := fs.String("csv-file", "benchmark_report.csv", "csv output path when -csv=file")
+	outputExample := fs.Bool("output-example", false, "write full encoded examples by format and shape case")
+	outputExampleDir := fs.String("output-example-dir", "", "base directory for encoded examples; empty means auto default")
 
 	if err := fs.Parse(args); err != nil {
 		return usecase.Options{}, err
 	}
 
 	return usecase.Options{
-		Records:     *records,
-		Iters:       *iters,
-		Warmup:      *warmup,
-		Seed:        *seed,
-		IndentSize:  *indentSize,
-		SampleLimit: *sampleLimit,
-		NoProgress:  *noProgress,
-		Baseline:    *baseline,
-		CSVMode:     *csvMode,
-		CSVFile:     *csvFile,
+		Records:          *records,
+		Iters:            *iters,
+		Warmup:           *warmup,
+		Seed:             *seed,
+		IndentSize:       *indentSize,
+		SampleLimit:      *sampleLimit,
+		NoProgress:       *noProgress,
+		Baseline:         *baseline,
+		CSVMode:          *csvMode,
+		CSVFile:          *csvFile,
+		OutputExample:    *outputExample,
+		OutputExampleDir: *outputExampleDir,
 	}, nil
 }

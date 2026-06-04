@@ -47,9 +47,19 @@ type ShapeCaseResult struct {
 	Result   ShapeResult
 }
 
+type ShapeEncodedArtifact struct {
+	FormatKey  string
+	FormatName string
+	CaseName   string
+	Binary     bool
+	Result     ShapeResult
+	Encoded    []byte
+}
+
 type ShapeMatrix struct {
-	Tests           []string
-	FormatNames     []string
-	ResultsByFormat [][]ShapeResult
-	PassCounts      []int
+	Tests            []string
+	FormatNames      []string
+	ResultsByFormat  [][]ShapeResult
+	PassCounts       []int
+	EncodedArtifacts []ShapeEncodedArtifact
 }

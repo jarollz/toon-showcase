@@ -1,0 +1,119 @@
+{
+  "session_timestamp": "2026-06-04_22-47-53+0700",
+  "project": {
+    "name": "toon-showcase",
+    "repo": "jarollz/toon-showcase",
+    "branch": "main"
+  },
+  "topic": "output-example-shape-case-files",
+  "user_goals": [
+    "Export full encoded payload files per format and shape case.",
+    "Control export with -output-example and -output-example-dir.",
+    "When output-example-dir is empty and export enabled, default to timestamped output/examples path.",
+    "Print resolved output example directory in program output.",
+    "Include manually created encoded-examples folder in commit."
+  ],
+  "starting_state": [
+    "Program printed only truncated encoded samples in benchmark report.",
+    "No full encoded shape-case file export path existed.",
+    "No output-example CLI flags existed."
+  ],
+  "collaboration_timeline": [
+    "User requested non-truncated outputs by format and shape case.",
+    "User specified flag contract: -output-example and -output-example-dir.",
+    "User refined empty-dir behavior to timestamped output/examples_[YYYYMMDD]_[HHmmss]_[z].",
+    "User confirmed timezone token should use +0800 style numeric offset.",
+    "AI implemented in TDD slices and validated with unit/full CI checks.",
+    "User manually verified and requested ai-gen-history + commit/push."
+  ],
+  "decisions": [
+    {
+      "decision": "Keep terminal sample truncated and add separate file export feature.",
+      "rationale": "Preserves concise CLI report while enabling full payload inspection.",
+      "impact": "No regression to existing report readability; adds optional artifact output."
+    },
+    {
+      "decision": "Resolve default output-example-dir as timestamped folder using run clock.",
+      "rationale": "Matches requested naming pattern and allows deterministic tests.",
+      "impact": "Creates unique output directory per enabled run when dir flag omitted."
+    },
+    {
+      "decision": "Represent shape encode artifacts in core ShapeMatrix DTO and write via presenter adapter.",
+      "rationale": "Maintains architecture direction and testability.",
+      "impact": "Core computes artifacts once; adapter handles filesystem concerns only."
+    }
+  ],
+  "implementation": {
+    "files_changed": [
+      "README.md",
+      "run_showcase.sh",
+      "main.go",
+      "main_test.go",
+      "internal/infrastructure/cli/flags.go",
+      "internal/infrastructure/cli/flags_test.go",
+      "internal/core/usecase/types.go",
+      "internal/core/usecase/types_test.go",
+      "internal/core/usecase/run.go",
+      "internal/core/entity/result.go",
+      "internal/core/usecase/shape.go",
+      "internal/core/usecase/charset_shape_test.go",
+      "internal/adapter/presenter/encoded_examples.go",
+      "internal/adapter/presenter/encoded_examples_test.go",
+      "encoded-examples/",
+      "ai-gen-history/session-2026-06-04_22-47-53+0700-output-example-shape-case-files.md",
+      "ai-gen-history/session-2026-06-04_22-47-53+0700-output-example-shape-case-files.json"
+    ],
+    "behavior_changes": [
+      "Added -output-example (default false) to gate full encoded file export.",
+      "Added -output-example-dir (default empty) and timestamped default resolution when empty and enabled.",
+      "Added stdout line showing resolved encoded examples directory when export enabled.",
+      "Added per-format/per-shape-case full encoded output files with .txt/.bin/.error.txt handling."
+    ]
+  },
+  "verification": [
+    {
+      "command": "go test ./internal/infrastructure/cli ./internal/core/usecase",
+      "result": "red then green during options/resolver TDD slice"
+    },
+    {
+      "command": "go test ./internal/core/usecase -run TestRunShapeMatrix",
+      "result": "red for missing shape artifacts"
+    },
+    {
+      "command": "go test ./internal/core/usecase",
+      "result": "green after shape artifact implementation"
+    },
+    {
+      "command": "go test ./internal/adapter/presenter ./... -run 'TestWriteShapeEncodedExamples|TestRunOutputExample|TestRunShapeMatrix'",
+      "result": "red then green for writer and main integration"
+    },
+    {
+      "command": "go test ./...",
+      "result": "pass"
+    },
+    {
+      "command": "make ci && go run . -records 20 -iters 50 -warmup 5 -no-progress",
+      "result": "pass; coverage 94.6%"
+    }
+  ],
+  "artifacts_generated": [
+    "encoded-examples/",
+    "ai-gen-history/session-2026-06-04_22-47-53+0700-output-example-shape-case-files.md",
+    "ai-gen-history/session-2026-06-04_22-47-53+0700-output-example-shape-case-files.json"
+  ],
+  "risks_tradeoffs": [
+    "Timestamped default directories can accumulate quickly.",
+    "Export volume grows with format and shape-case count.",
+    "Error artifact files are expected for unsupported combinations and may surprise users without context."
+  ],
+  "session_knowledge": [
+    "Gate heavy artifact output behind explicit CLI flag by default.",
+    "Use injected clock for timestamp path determinism in tests.",
+    "Capture encode artifacts in core usecase DTOs; keep file IO in presenter adapter.",
+    "Always print resolved output destination when filesystem artifacts are generated."
+  ],
+  "next_steps": [
+    "Optionally add retention/cleanup command for output/examples_* folders.",
+    "Optionally document expected generated tree example in README."
+  ]
+}

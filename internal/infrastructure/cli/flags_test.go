@@ -13,10 +13,16 @@ func TestParseDefaults(t *testing.T) {
 	if opts.Baseline != "toon" || opts.CSVMode != "off" {
 		t.Fatalf("unexpected default baseline/csv: %+v", opts)
 	}
+	if opts.OutputExample {
+		t.Fatalf("output example default should be false")
+	}
+	if opts.OutputExampleDir != "" {
+		t.Fatalf("output example dir default should be empty")
+	}
 }
 
 func TestParseCustomAndError(t *testing.T) {
-	opts, err := Parse([]string{"-records", "1", "-iters", "2", "-warmup", "3", "-seed", "4", "-indent", "5", "-sample-limit", "6", "-no-progress", "-baseline", "json", "-csv", "file", "-csv-file", "x.csv"})
+	opts, err := Parse([]string{"-records", "1", "-iters", "2", "-warmup", "3", "-seed", "4", "-indent", "5", "-sample-limit", "6", "-no-progress", "-baseline", "json", "-csv", "file", "-csv-file", "x.csv", "-output-example=true", "-output-example-dir", "x-output"})
 	if err != nil {
 		t.Fatalf("Parse custom error: %v", err)
 	}
@@ -25,6 +31,9 @@ func TestParseCustomAndError(t *testing.T) {
 	}
 	if !opts.NoProgress || opts.Baseline != "json" || opts.CSVMode != "file" || opts.CSVFile != "x.csv" {
 		t.Fatalf("unexpected parsed flags: %+v", opts)
+	}
+	if !opts.OutputExample || opts.OutputExampleDir != "x-output" {
+		t.Fatalf("unexpected output-example flags: %+v", opts)
 	}
 
 	if _, err := Parse([]string{"-records", "bad"}); err == nil {

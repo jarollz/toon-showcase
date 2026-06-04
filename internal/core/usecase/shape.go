@@ -11,6 +11,11 @@ type shapeCase struct {
 	Prepare func() (any, any)
 }
 
+type shapeEvalOutput struct {
+	Result  entity.ShapeResult
+	Encoded []byte
+}
+
 type probeSliceStruct struct {
 	Value []entity.OrderSummary `json:"value" yaml:"value" toml:"value" msgpack:"value" xml:"value>item" toon:"value"`
 }
@@ -104,6 +109,7 @@ func runShapeMatrix(codecs []Codec) entity.ShapeMatrix {
 	passCounts := make([]int, len(codecs))
 	formatNames := make([]string, len(codecs))
 	testNames := make([]string, 0, len(tests))
+	artifacts := make([]entity.ShapeEncodedArtifact, 0, len(codecs)*len(tests))
 
 	for _, t := range tests {
 		testNames = append(testNames, t.Name)
@@ -113,30 +119,39 @@ func runShapeMatrix(codecs []Codec) entity.ShapeMatrix {
 		formatNames[fi] = c.Name()
 		rows := make([]entity.ShapeResult, 0, len(tests))
 		for _, tc := range tests {
-			res := evalShapeCase(c, tc)
+			eval := evalShapeCase(c, tc)
+			res := eval.Result
 			if res.EncodeOK && res.DecodeOK && res.RoundTripOK {
 				passCounts[fi]++
 			}
 			rows = append(rows, res)
+			artifacts = append(artifacts, entity.ShapeEncodedArtifact{
+				FormatKey:  c.Key(),
+				FormatName: c.Name(),
+				CaseName:   tc.Name,
+				Binary:     c.Binary(),
+				Result:     res,
+				Encoded:    eval.Encoded,
+			})
 		}
 		resultsByFormat[fi] = rows
 	}
 
-	return entity.ShapeMatrix{Tests: testNames, FormatNames: formatNames, ResultsByFormat: resultsByFormat, PassCounts: passCounts}
+	return entity.ShapeMatrix{Tests: testNames, FormatNames: formatNames, ResultsByFormat: resultsByFormat, PassCounts: passCounts, EncodedArtifacts: artifacts}
 }
 
-func evalShapeCase(codec Codec, tc shapeCase) entity.ShapeResult {
+func evalShapeCase(codec Codec, tc shapeCase) shapeEvalOutput {
 	in, outPtr := tc.Prepare()
 	raw, err := codec.MarshalAny(in)
 	if err != nil {
-		return entity.ShapeResult{EncodeOK: false, DecodeOK: false, RoundTripOK: false, Detail: err.Error()}
+		return shapeEvalOutput{Result: entity.ShapeResult{EncodeOK: false, DecodeOK: false, RoundTripOK: false, Detail: err.Error()}}
 	}
 	if err := codec.UnmarshalAny(raw, outPtr); err != nil {
-		return entity.ShapeResult{EncodeOK: true, DecodeOK: false, RoundTripOK: false, Detail: err.Error()}
+		return shapeEvalOutput{Result: entity.ShapeResult{EncodeOK: true, DecodeOK: false, RoundTripOK: false, Detail: err.Error()}, Encoded: raw}
 	}
 	outVal := reflect.ValueOf(outPtr).Elem().Interface()
 	if !normalizedEqual(in, outVal) {
-		return entity.ShapeResult{EncodeOK: true, DecodeOK: true, RoundTripOK: false, Detail: "decoded value differs"}
+		return shapeEvalOutput{Result: entity.ShapeResult{EncodeOK: true, DecodeOK: true, RoundTripOK: false, Detail: "decoded value differs"}, Encoded: raw}
 	}
-	return entity.ShapeResult{EncodeOK: true, DecodeOK: true, RoundTripOK: true, Detail: "ok"}
+	return shapeEvalOutput{Result: entity.ShapeResult{EncodeOK: true, DecodeOK: true, RoundTripOK: true, Detail: "ok"}, Encoded: raw}
 }

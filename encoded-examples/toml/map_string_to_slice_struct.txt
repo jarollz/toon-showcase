@@ -1,0 +1,9 @@
+[value]
+
+  [[value.group]]
+    orderId = "A"
+    customerId = "X"
+    locale = "ja-JP"
+    priority = 2
+    totalUsd = 33.4
+    emojiStatus = "✨"

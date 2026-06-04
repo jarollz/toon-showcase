@@ -1,0 +1,1 @@
+<probeSlicePointer><value><item><orderId>X</orderId><customerId>C</customerId><locale>zh-CN</locale><priority>1</priority><totalUsd>9.9</totalUsd><emojiStatus>🙂</emojiStatus></item></value></probeSlicePointer>

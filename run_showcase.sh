@@ -31,7 +31,7 @@ Presets:
   full   -> records=300, iters=1200, warmup=120 (default)
 
 Environment overrides:
-  RECORDS ITERS WARMUP INDENT SEED CSV_MODE CSV_FILE OUTPUT_DIR
+  RECORDS ITERS WARMUP INDENT SEED CSV_MODE CSV_FILE OUTPUT_DIR OUTPUT_EXAMPLE OUTPUT_EXAMPLE_DIR
 
 Notes:
   - Default seed is -1 (program resolves to current unix timestamp).
@@ -75,6 +75,8 @@ WARMUP="${WARMUP:-${DEFAULT_WARMUP}}"
 INDENT="${INDENT:-2}"
 SEED="${SEED:--1}"
 CSV_MODE="${CSV_MODE:-off}"
+OUTPUT_EXAMPLE="${OUTPUT_EXAMPLE:-false}"
+OUTPUT_EXAMPLE_DIR="${OUTPUT_EXAMPLE_DIR:-}"
 
 timestamp="$(date +%Y%m%d_%H%M%S)"
 OUTPUT_DIR="${OUTPUT_DIR:-${SCRIPT_DIR}/output}"
@@ -94,6 +96,10 @@ echo "- csv_mode=${CSV_MODE}"
 if [[ "${CSV_MODE}" == "file" ]]; then
   echo "- csv_file=${CSV_FILE}"
 fi
+echo "- output_example=${OUTPUT_EXAMPLE}"
+if [[ -n "${OUTPUT_EXAMPLE_DIR}" ]]; then
+  echo "- output_example_dir=${OUTPUT_EXAMPLE_DIR}"
+fi
 
 cmd=(
   go run .
@@ -103,10 +109,15 @@ cmd=(
   -indent "${INDENT}"
   -seed "${SEED}"
   -csv "${CSV_MODE}"
+  -output-example="${OUTPUT_EXAMPLE}"
 )
 
 if [[ "${CSV_MODE}" == "file" ]]; then
   cmd+=( -csv-file "${CSV_FILE}" )
+fi
+
+if [[ -n "${OUTPUT_EXAMPLE_DIR}" ]]; then
+  cmd+=( -output-example-dir "${OUTPUT_EXAMPLE_DIR}" )
 fi
 
 if [[ "${#PASSTHROUGH_ARGS[@]}" -gt 0 ]]; then

@@ -1,0 +1,12 @@
+<probeSliceStruct>
+  <value>
+    <item>
+      <orderId>A</orderId>
+      <customerId>C1</customerId>
+      <locale>en-US</locale>
+      <priority>1</priority>
+      <totalUsd>11.2</totalUsd>
+      <emojiStatus>🚀</emojiStatus>
+    </item>
+  </value>
+</probeSliceStruct>

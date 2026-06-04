@@ -1,0 +1,3 @@
+value:
+  group[1]{orderId,customerId,locale,priority,totalUsd,emojiStatus}:
+    A,X,ja-JP,2,33.4,✨

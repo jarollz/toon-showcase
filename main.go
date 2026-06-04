@@ -38,6 +38,13 @@ func run(args []string, stdout, stderr io.Writer, now func() time.Time) int {
 	presenter.PrintBenchmarkReport(stdout, out.Results, out.Baseline, opts.Records, opts.Iters, opts.Warmup, out.ResolvedSeed, opts.IndentSize)
 	presenter.PrintCharsetMatrix(stdout, out.Charset)
 	presenter.PrintShapeMatrix(stdout, out.Shape)
+	if opts.OutputExample {
+		fmt.Fprintf(stdout, "Encoded examples output dir: %s\n", out.ResolvedOutputExampleDir)
+		if err := presenter.WriteShapeEncodedExamples(out.ResolvedOutputExampleDir, out.Shape.EncodedArtifacts); err != nil {
+			fmt.Fprintln(stderr, fmt.Sprintf("failed to write encoded examples: %v", err))
+			return 1
+		}
+	}
 
 	if opts.CSVMode == "off" {
 		return 0

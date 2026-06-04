@@ -29,6 +29,11 @@ func (r Runner) Run(opts Options) (RunOutput, error) {
 		seed = now().Unix()
 	}
 
+	resolvedOutputExampleDir := ""
+	if opts.OutputExample {
+		resolvedOutputExampleDir = ResolveOutputExampleDir(opts.OutputExampleDir, now())
+	}
+
 	dataset := GenerateDataset(opts.Records, seed)
 
 	var progress Progress
@@ -62,12 +67,13 @@ func (r Runner) Run(opts Options) (RunOutput, error) {
 	}
 
 	return RunOutput{
-		Results:      results,
-		Baseline:     baseline,
-		Charset:      runCharsetMatrix(r.Codecs),
-		Shape:        runShapeMatrix(r.Codecs),
-		ResolvedSeed: seed,
-		BaselineKey:  baselineKey,
+		Results:                  results,
+		Baseline:                 baseline,
+		Charset:                  runCharsetMatrix(r.Codecs),
+		Shape:                    runShapeMatrix(r.Codecs),
+		ResolvedSeed:             seed,
+		BaselineKey:              baselineKey,
+		ResolvedOutputExampleDir: resolvedOutputExampleDir,
 	}, nil
 }
 

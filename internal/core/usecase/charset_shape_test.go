@@ -63,6 +63,27 @@ func TestRunShapeMatrix(t *testing.T) {
 	if report.PassCounts[1] != 0 || report.PassCounts[2] != 0 {
 		t.Fatalf("error codecs should fail all")
 	}
+
+	wantArtifacts := len(report.Tests) * len(report.FormatNames)
+	if len(report.EncodedArtifacts) != wantArtifacts {
+		t.Fatalf("artifacts len = %d, want %d", len(report.EncodedArtifacts), wantArtifacts)
+	}
+
+	okArtifact, found := findShapeArtifact(report, "OK", "slice_struct")
+	if !found {
+		t.Fatalf("missing OK/slice_struct artifact")
+	}
+	if !okArtifact.Result.EncodeOK || len(okArtifact.Encoded) == 0 {
+		t.Fatalf("expected encoded bytes for successful artifact")
+	}
+
+	errArtifact, found := findShapeArtifact(report, "BadMarshal", "slice_struct")
+	if !found {
+		t.Fatalf("missing BadMarshal/slice_struct artifact")
+	}
+	if errArtifact.Result.EncodeOK || len(errArtifact.Encoded) != 0 {
+		t.Fatalf("expected failed artifact with no encoded bytes")
+	}
 }
 
 func TestEvalShapeCaseMismatch(t *testing.T) {
@@ -84,7 +105,8 @@ func TestEvalShapeCaseMismatch(t *testing.T) {
 		},
 	}
 
-	res := evalShapeCase(c, tc)
+	eval := evalShapeCase(c, tc)
+	res := eval.Result
 	if res.RoundTripOK {
 		t.Fatalf("expected mismatch")
 	}
@@ -105,4 +127,13 @@ func anyToCharsetProbe(v any) *charsetProbe {
 		return &charsetProbe{}
 	}
 	return p
+}
+
+func findShapeArtifact(report entity.ShapeMatrix, formatName, caseName string) (entity.ShapeEncodedArtifact, bool) {
+	for _, artifact := range report.EncodedArtifacts {
+		if artifact.FormatName == formatName && artifact.CaseName == caseName {
+			return artifact, true
+		}
+	}
+	return entity.ShapeEncodedArtifact{}, false
 }

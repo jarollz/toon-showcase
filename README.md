@@ -113,6 +113,19 @@ All parameters are standard Go flags passed to `go run .`.
   - Supported canonical values: `toon`, `json-compact`, `json-pretty`, `yaml`, `toml`, `xml-compact`, `xml-pretty`, `messagepack`.
   - Alias examples accepted: `json`, `yml`, `xml`, `msgpack`.
 
+### Encoded example output controls
+
+- `-output-example` (default: `false`)
+  - Enables writing full encoded shape-case examples to files.
+  - `false`: skip file export.
+  - `true`: write one file per `(format, shape case)` from the shape matrix.
+
+- `-output-example-dir` (default: empty)
+  - Base directory for encoded example files.
+  - Used only when `-output-example=true`.
+  - If empty, the program auto-generates: `output/examples_[YYYYMMDD]_[HHmmss]_[+0800]`.
+  - Program output prints resolved directory path for quick lookup.
+
 ### CSV output controls
 
 - `-csv` (default: `off`)
@@ -179,6 +192,18 @@ Disable progress animation:
 go run . -no-progress
 ```
 
+Output encoded examples to auto-generated directory:
+
+```bash
+go run . -output-example=true
+```
+
+Output encoded examples to custom directory:
+
+```bash
+go run . -output-example=true -output-example-dir ./output/examples_manual
+```
+
 ## CSV output mode
 
 Write CSV files:
@@ -217,6 +242,8 @@ RECORDS=200 ITERS=800 ./run_showcase.sh
   - `INDENT=2`
   - `SEED=-1` (current unix timestamp)
   - `CSV_MODE=off`
+  - `OUTPUT_EXAMPLE=false`
+  - `OUTPUT_EXAMPLE_DIR=` (empty means app auto-generates timestamped output path)
   - `OUTPUT_DIR=./output`
 
 - Script presets:
@@ -235,6 +262,8 @@ Script env-to-flag mapping:
 - `SEED` -> `-seed`
 - `CSV_MODE` -> `-csv`
 - `CSV_FILE` -> `-csv-file`
+- `OUTPUT_EXAMPLE` -> `-output-example`
+- `OUTPUT_EXAMPLE_DIR` -> `-output-example-dir`
 
 ## Notes on comparability
 
