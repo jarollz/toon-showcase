@@ -1,5 +1,7 @@
 # TOON vs Multi-Format Showcase (Go)
 
+[![CI](https://github.com/jarollz/toon-showcase/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/jarollz/toon-showcase/actions/workflows/ci.yml)
+
 This program compares:
 
 - JSON compact (`encoding/json` + `json.Marshal`)
