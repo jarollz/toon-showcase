@@ -1,0 +1,103 @@
+{
+  "session_timestamp": "2026-06-04_18-30-46+0700",
+  "project": {
+    "name": "toon-showcase",
+    "repo": "jarollz/toon-showcase",
+    "branch": "main"
+  },
+  "topic": "client-agnostic-ai-gen-history-skill-and-readme-benchmark",
+  "user_goals": [
+    "update AGENTS.md and README.md for layered architecture and coverage guidance",
+    "add benchmark snapshot near top of README using output/LASTRUN.txt",
+    "create reusable ai-gen-history workflow",
+    "keep workflow client-agnostic and repository-centric",
+    "use .agents folder and avoid client-specific command folders"
+  ],
+  "starting_state": [
+    "AGENTS.md reflected pre-refactor assumptions (main.go-centric, no subpackage emphasis)",
+    "README.md lacked architecture and quality-gate contributor guidance",
+    "no canonical .agents skill for ai-gen-history",
+    "historical ai-gen-history output files existed without shared generation workflow"
+  ],
+  "collaboration_timeline": [
+    "assessed documentation drift after architecture refactor and confirmed updates were needed",
+    "updated AGENTS.md and README.md with architecture, quality gate, and benchmark snapshot content",
+    "researched OpenCode/Claude/Codex invocation models for cross-client command portability",
+    "aligned on client-agnostic option B and migrated workflow to .agents/skills/ai-gen-history",
+    "removed earlier .opencode/.agent command artifacts to avoid client coupling",
+    "added invocation examples and AGENTS.md awareness for the new skill",
+    "generated new ai-gen-history entry following the new skill rules"
+  ],
+  "decisions": [
+    {
+      "decision": "use .agents/skills/ai-gen-history as canonical source",
+      "rationale": "portable across clients that support Agent Skills and versioned in repository",
+      "impact": "single workflow definition with lower drift risk"
+    },
+    {
+      "decision": "avoid repository-owned client-specific command files",
+      "rationale": "user requested client-agnostic repository setup",
+      "impact": "invocation syntax may vary by client but behavior remains consistent"
+    },
+    {
+      "decision": "surface benchmark snapshot near top of README",
+      "rationale": "public readers need immediate performance signal",
+      "impact": "faster comprehension of format tradeoffs and TOON-relative magnitude"
+    }
+  ],
+  "implementation": {
+    "files_changed": [
+      "AGENTS.md",
+      "README.md",
+      ".agents/skills/ai-gen-history/SKILL.md",
+      ".agents/skills/ai-gen-history/template.md",
+      ".agents/skills/ai-gen-history/template.json",
+      ".agents/skills/ai-gen-history/README.md",
+      "ai-gen-history/session-2026-06-04_18-30-46+0700-client-agnostic-ai-gen-history-skill-and-readme-benchmark.md",
+      "ai-gen-history/session-2026-06-04_18-30-46+0700-client-agnostic-ai-gen-history-skill-and-readme-benchmark.json"
+    ],
+    "behavior_changes": [
+      "documentation now encodes layered dependency and coverage rules for future contributors",
+      "README now includes M1 Pro benchmark snapshot and TOON-baseline deltas near top",
+      "session history generation now uses canonical client-agnostic skill with template-based outputs"
+    ]
+  },
+  "verification": [
+    {
+      "command": "git branch --show-current && git status --short",
+      "result": "branch main confirmed; modified/new files matched intended documentation and skill migration scope"
+    },
+    {
+      "command": "date +\"%Y-%m-%d_%H-%M-%S%z\" && date +\"%Y-%m-%d %H:%M:%S %z\"",
+      "result": "captured timestamp for deterministic artifact naming and report header"
+    },
+    {
+      "command": "read-back checks on skill/templates/README sections",
+      "result": "content alignment confirmed against requested client-agnostic workflow"
+    }
+  ],
+  "artifacts_generated": [
+    ".agents/skills/ai-gen-history/SKILL.md",
+    ".agents/skills/ai-gen-history/template.md",
+    ".agents/skills/ai-gen-history/template.json",
+    ".agents/skills/ai-gen-history/README.md",
+    "ai-gen-history/session-2026-06-04_18-30-46+0700-client-agnostic-ai-gen-history-skill-and-readme-benchmark.md",
+    "ai-gen-history/session-2026-06-04_18-30-46+0700-client-agnostic-ai-gen-history-skill-and-readme-benchmark.json"
+  ],
+  "risks_tradeoffs": [
+    "exact slash-command parity across all clients is not guaranteed by current client behavior",
+    "benchmark snapshot in README can become stale if not refreshed",
+    "client-agnostic skill model reduces coupling but requires users to follow each client's native skill invocation UX"
+  ],
+  "session_knowledge": [
+    "for cross-client reuse, place canonical workflows under .agents/skills with SKILL.md and local templates",
+    "for this repo, ai-gen-history outputs should always be paired md/json files under ai-gen-history/",
+    "TOON-relative signed percentage deltas improve benchmark readability at a glance",
+    "keeping AGENTS.md and README aligned lowers future AI contributor drift"
+  ],
+  "next_steps": [
+    "commit documentation and skill migration updates",
+    "optionally add a check that .agents/skills/ai-gen-history required files exist",
+    "refresh README benchmark snapshot when performance characteristics materially change"
+  ]
+}

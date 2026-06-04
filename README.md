@@ -20,6 +20,98 @@ Comparison aspects:
 - Character set support (English / Japanese / Chinese / emoji / escapes / control chars)
 - Shape compatibility matrix for complex structures (e.g. mixed arrays, non-string map keys, nil elements)
 
+## Benchmark snapshot (MacBook Pro M1 Pro)
+
+Sample run on personal MacBook Pro M1 Pro using full preset (`records=300`, `iters=1200`, `warmup=120`, `seed=1780566620`). Source: `output/LASTRUN.txt`.
+
+Environment note: personal laptop (`Apple Silicon M1 Pro`), single local run snapshot for quick comparison (not a controlled lab benchmark).
+
+Reproduce this snapshot: `./run_showcase.sh --preset full -no-progress`
+
+| Format | Marshal (ns/op) | Unmarshal (ns/op) | Bytes | Roundtrip |
+| --- | ---: | ---: | ---: | :---: |
+| JSON compact | 939,708 | 5,019,143 | 503,547 | ok |
+| JSON pretty | 3,833,217 | 6,981,475 | 874,689 | ok |
+| TOON | 5,802,221 | 7,128,738 | 487,180 | ok |
+| YAML | 22,252,406 | 28,063,857 | 638,241 | ok |
+| TOML | 17,243,525 | 36,782,208 | 754,286 | ok |
+| XML compact | 4,295,982 | 21,441,007 | 724,441 | ok |
+| XML pretty | 5,394,372 | 25,848,742 | 1,074,418 | ok |
+| MessagePack | 992,791 | 2,081,718 | 419,879 | ok |
+
+Percent delta vs TOON baseline (`-` means faster/smaller, `+` means slower/larger):
+
+| Format | Marshal delta | Unmarshal delta | Bytes delta |
+| --- | ---: | ---: | ---: |
+| JSON compact | -83.8% | -29.6% | +3.4% |
+| JSON pretty | -33.9% | -2.1% | +79.5% |
+| YAML | +283.5% | +293.7% | +31.0% |
+| TOML | +197.2% | +416.0% | +54.8% |
+| XML compact | -26.0% | +200.8% | +48.7% |
+| XML pretty | -7.0% | +262.6% | +120.5% |
+| MessagePack (binary) | -82.9% | -70.8% | -13.8% |
+
+Quick read (all compared to TOON):
+
+- Speed vs TOON: `JSON compact` (`-83.8%` marshal, `-29.6%` unmarshal), `MessagePack` (`-82.9%` marshal, `-70.8%` unmarshal; binary).
+- Size vs TOON: `MessagePack` (`-13.8%`), `JSON compact` (`+3.4%`), `JSON pretty` (`+79.5%`), `XML pretty` (`+120.5%`).
+- Unmarshal penalty vs TOON: `XML compact` (`+200.8%`), `XML pretty` (`+262.6%`), `YAML` (`+293.7%`), `TOML` (`+416.0%`); XML marshal still faster (`-26.0%` / `-7.0%`).
+
+## Architecture
+
+This repo follows layered architecture. New code should respect dependency direction and layer responsibility.
+
+- `main.go`: composition root only (wire dependencies and execute flow)
+- `internal/infrastructure/cli`: flag parsing and CLI option mapping
+- `internal/adapter/codec`: format codec implementations
+- `internal/adapter/presenter`: report/csv/progress output rendering
+- `internal/core/usecase`: business flow, validation, orchestration contracts
+- `internal/core/entity`: domain models and report DTOs
+
+Dependency direction must stay inward:
+
+- `infrastructure/adapter -> core/usecase -> core/entity`
+
+`core/entity` and `core/usecase` must not import adapter or infrastructure packages.
+
+## Quality gate and tests
+
+- Coverage floor is `90.0%` total (enforced by `Makefile` `COVER_MIN`).
+- CI runs `make ci` (`vet + test-race + cover-check`).
+- Any logic change should include matching unit test updates in affected layer.
+
+Recommended local verification after changes:
+
+```bash
+make ci
+go run . -records 20 -iters 50 -warmup 5 -no-progress
+```
+
+## AI session history skill (client-agnostic)
+
+This repo ships one canonical Agent Skill for session documentation:
+
+- `.agents/skills/ai-gen-history/SKILL.md`
+
+Supporting templates:
+
+- `.agents/skills/ai-gen-history/template.md`
+- `.agents/skills/ai-gen-history/template.json`
+- Invocation examples: `.agents/skills/ai-gen-history/README.md`
+
+The skill generates paired artifacts in `ai-gen-history/`:
+
+- `session-<timestamp>-<topic>.md`
+- `session-<timestamp>-<topic>.json`
+
+Invocation differs by client, but uses the same skill definition:
+
+- OpenCode: load skill `ai-gen-history` (or call through skill tool)
+- Claude: run skill `ai-gen-history`
+- Codex: `$ai-gen-history <optional-topic>` (or select from `/skills`)
+
+No client-specific command files are required in this repository.
+
 ## Run
 
 ```bash

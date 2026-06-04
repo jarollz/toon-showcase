@@ -1,0 +1,33 @@
+{
+  "session_timestamp": "<YYYY-MM-DD_HH-MM-SS+ZZZZ>",
+  "project": {
+    "name": "<repo-name>",
+    "repo": "<owner/repo or unknown>",
+    "branch": "<branch>"
+  },
+  "topic": "<topic-slug>",
+  "user_goals": [],
+  "starting_state": [],
+  "collaboration_timeline": [],
+  "decisions": [
+    {
+      "decision": "",
+      "rationale": "",
+      "impact": ""
+    }
+  ],
+  "implementation": {
+    "files_changed": [],
+    "behavior_changes": []
+  },
+  "verification": [
+    {
+      "command": "",
+      "result": ""
+    }
+  ],
+  "artifacts_generated": [],
+  "risks_tradeoffs": [],
+  "session_knowledge": [],
+  "next_steps": []
+}
