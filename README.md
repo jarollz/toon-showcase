@@ -41,21 +41,23 @@ Reproduce this snapshot: `./run_showcase.sh --preset full -no-progress`
 
 Percent delta vs TOON baseline (`-` means faster/smaller, `+` means slower/larger):
 
+Emoji legend: `✅` better, `❌` worse, `➖` same.
+
 | Format | Marshal delta | Unmarshal delta | Bytes delta |
 | --- | ---: | ---: | ---: |
-| JSON compact | -83.8% | -29.6% | +3.4% |
-| JSON pretty | -33.9% | -2.1% | +79.5% |
-| YAML | +283.5% | +293.7% | +31.0% |
-| TOML | +197.2% | +416.0% | +54.8% |
-| XML compact | -26.0% | +200.8% | +48.7% |
-| XML pretty | -7.0% | +262.6% | +120.5% |
-| MessagePack (binary) | -82.9% | -70.8% | -13.8% |
+| JSON compact | -83.8% ✅ | -29.6% ✅ | +3.4% ❌ |
+| JSON pretty | -33.9% ✅ | -2.1% ✅ | +79.5% ❌ |
+| YAML | +283.5% ❌ | +293.7% ❌ | +31.0% ❌ |
+| TOML | +197.2% ❌ | +416.0% ❌ | +54.8% ❌ |
+| XML compact | -26.0% ✅ | +200.8% ❌ | +48.7% ❌ |
+| XML pretty | -7.0% ✅ | +262.6% ❌ | +120.5% ❌ |
+| MessagePack (binary) | -82.9% ✅ | -70.8% ✅ | -13.8% ✅ |
 
 Quick read (all compared to TOON):
 
-- Speed vs TOON: `JSON compact` (`-83.8%` marshal, `-29.6%` unmarshal), `MessagePack` (`-82.9%` marshal, `-70.8%` unmarshal; binary).
-- Size vs TOON: `MessagePack` (`-13.8%`), `JSON compact` (`+3.4%`), `JSON pretty` (`+79.5%`), `XML pretty` (`+120.5%`).
-- Unmarshal penalty vs TOON: `XML compact` (`+200.8%`), `XML pretty` (`+262.6%`), `YAML` (`+293.7%`), `TOML` (`+416.0%`); XML marshal still faster (`-26.0%` / `-7.0%`).
+- Speed vs TOON: `JSON compact` (`-83.8%` marshal ✅, `-29.6%` unmarshal ✅), `MessagePack` (`-82.9%` marshal ✅, `-70.8%` unmarshal ✅; binary).
+- Size vs TOON: `MessagePack` (`-13.8%` ✅), `JSON compact` (`+3.4%` ❌), `JSON pretty` (`+79.5%` ❌), `XML pretty` (`+120.5%` ❌).
+- Unmarshal penalty vs TOON: `XML compact` (`+200.8%` ❌), `XML pretty` (`+262.6%` ❌), `YAML` (`+293.7%` ❌), `TOML` (`+416.0%` ❌); XML marshal still faster (`-26.0%` ✅ / `-7.0%` ✅).
 
 ## Run
 
