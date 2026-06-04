@@ -57,61 +57,6 @@ Quick read (all compared to TOON):
 - Size vs TOON: `MessagePack` (`-13.8%`), `JSON compact` (`+3.4%`), `JSON pretty` (`+79.5%`), `XML pretty` (`+120.5%`).
 - Unmarshal penalty vs TOON: `XML compact` (`+200.8%`), `XML pretty` (`+262.6%`), `YAML` (`+293.7%`), `TOML` (`+416.0%`); XML marshal still faster (`-26.0%` / `-7.0%`).
 
-## Architecture
-
-This repo follows layered architecture. New code should respect dependency direction and layer responsibility.
-
-- `main.go`: composition root only (wire dependencies and execute flow)
-- `internal/infrastructure/cli`: flag parsing and CLI option mapping
-- `internal/adapter/codec`: format codec implementations
-- `internal/adapter/presenter`: report/csv/progress output rendering
-- `internal/core/usecase`: business flow, validation, orchestration contracts
-- `internal/core/entity`: domain models and report DTOs
-
-Dependency direction must stay inward:
-
-- `infrastructure/adapter -> core/usecase -> core/entity`
-
-`core/entity` and `core/usecase` must not import adapter or infrastructure packages.
-
-## Quality gate and tests
-
-- Coverage floor is `90.0%` total (enforced by `Makefile` `COVER_MIN`).
-- CI runs `make ci` (`vet + test-race + cover-check`).
-- Any logic change should include matching unit test updates in affected layer.
-
-Recommended local verification after changes:
-
-```bash
-make ci
-go run . -records 20 -iters 50 -warmup 5 -no-progress
-```
-
-## AI session history skill (client-agnostic)
-
-This repo ships one canonical Agent Skill for session documentation:
-
-- `.agents/skills/ai-gen-history/SKILL.md`
-
-Supporting templates:
-
-- `.agents/skills/ai-gen-history/template.md`
-- `.agents/skills/ai-gen-history/template.json`
-- Invocation examples: `.agents/skills/ai-gen-history/README.md`
-
-The skill generates paired artifacts in `ai-gen-history/`:
-
-- `session-<timestamp>-<topic>.md`
-- `session-<timestamp>-<topic>.json`
-
-Invocation differs by client, but uses the same skill definition:
-
-- OpenCode: load skill `ai-gen-history` (or call through skill tool)
-- Claude: run skill `ai-gen-history`
-- Codex: `$ai-gen-history <optional-topic>` (or select from `/skills`)
-
-No client-specific command files are required in this repository.
-
 ## Run
 
 ```bash
@@ -296,3 +241,60 @@ Script env-to-flag mapping:
 - XML has two lanes: compact and pretty.
 - Benchmark dataset is intentionally TOML-safe for speed/size comparison.
 - TOML/TOON/XML limitations on specific shapes are surfaced in the shape compatibility matrix section.
+
+## For contributors
+
+## Quality gate and tests
+
+- Coverage floor is `90.0%` total (enforced by `Makefile` `COVER_MIN`).
+- CI runs `make ci` (`vet + test-race + cover-check`).
+- Any logic change should include matching unit test updates in affected layer.
+
+Recommended local verification after changes:
+
+```bash
+make ci
+go run . -records 20 -iters 50 -warmup 5 -no-progress
+```
+
+## Architecture
+
+This repo follows layered architecture. New code should respect dependency direction and layer responsibility.
+
+- `main.go`: composition root only (wire dependencies and execute flow)
+- `internal/infrastructure/cli`: flag parsing and CLI option mapping
+- `internal/adapter/codec`: format codec implementations
+- `internal/adapter/presenter`: report/csv/progress output rendering
+- `internal/core/usecase`: business flow, validation, orchestration contracts
+- `internal/core/entity`: domain models and report DTOs
+
+Dependency direction must stay inward:
+
+- `infrastructure/adapter -> core/usecase -> core/entity`
+
+`core/entity` and `core/usecase` must not import adapter or infrastructure packages.
+
+## AI session history skill (client-agnostic)
+
+This repo ships one canonical Agent Skill for session documentation:
+
+- `.agents/skills/ai-gen-history/SKILL.md`
+
+Supporting templates:
+
+- `.agents/skills/ai-gen-history/template.md`
+- `.agents/skills/ai-gen-history/template.json`
+- Invocation examples: `.agents/skills/ai-gen-history/README.md`
+
+The skill generates paired artifacts in `ai-gen-history/`:
+
+- `session-<timestamp>-<topic>.md`
+- `session-<timestamp>-<topic>.json`
+
+Invocation differs by client, but uses the same skill definition:
+
+- OpenCode: load skill `ai-gen-history` (or call through skill tool)
+- Claude: run skill `ai-gen-history`
+- Codex: `$ai-gen-history <optional-topic>` (or select from `/skills`)
+
+No client-specific command files are required in this repository.
