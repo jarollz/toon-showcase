@@ -1,0 +1,72 @@
+{
+  "session_timestamp": "2026-06-04_22-55-59+0700",
+  "project": {
+    "name": "toon-showcase",
+    "repo": "jarollz/toon-showcase",
+    "branch": "main"
+  },
+  "topic": "readme-encoded-examples-docs",
+  "user_goals": [
+    "Add information about encoded-examples folder to README.md",
+    "Invoke ai-gen-history skill and then commit/push changes"
+  ],
+  "starting_state": [
+    "README.md had no dedicated section for checked-in encoded-examples snapshot",
+    "Repository already contained encoded-examples directories and files"
+  ],
+  "collaboration_timeline": [
+    "User requested README update for encoded-examples folder",
+    "AI inspected README and encoded-examples structure and proposed exact section text",
+    "User approved and AI patched README",
+    "User requested ai-gen-history invocation plus commit/push"
+  ],
+  "decisions": [
+    {
+      "decision": "Insert new section near output-example command docs before CSV section",
+      "rationale": "Keep documentation flow aligned with related CLI flags and examples",
+      "impact": "Improves discoverability for users looking for encoded artifact guidance"
+    },
+    {
+      "decision": "Document expected .error.txt artifacts by format",
+      "rationale": "Prevent confusion between expected codec limitations and regressions",
+      "impact": "Users can quickly validate snapshot correctness"
+    }
+  ],
+  "implementation": {
+    "files_changed": [
+      "README.md",
+      "ai-gen-history/session-2026-06-04_22-55-59+0700-readme-encoded-examples-docs.md",
+      "ai-gen-history/session-2026-06-04_22-55-59+0700-readme-encoded-examples-docs.json"
+    ],
+    "behavior_changes": [
+      "Documentation-only update for encoded-examples usage and interpretation",
+      "No application runtime or test behavior changes"
+    ]
+  },
+  "verification": [
+    {
+      "command": "python3 -c \"...\" (summarize encoded-examples counts by suffix)",
+      "result": "Confirmed per-format txt/bin/error counts match documented behavior"
+    },
+    {
+      "command": "python3 -c \"...\" (list unsupported shape cases from .error.txt files)",
+      "result": "Confirmed toml/toon/xml expected failure-case lists"
+    }
+  ],
+  "artifacts_generated": [
+    "ai-gen-history/session-2026-06-04_22-55-59+0700-readme-encoded-examples-docs.md",
+    "ai-gen-history/session-2026-06-04_22-55-59+0700-readme-encoded-examples-docs.json"
+  ],
+  "risks_tradeoffs": [
+    "README expected-failure bullets may become stale if shape matrix or codec behavior changes"
+  ],
+  "session_knowledge": [
+    "Document checked-in snapshots separately from runtime-generated output paths",
+    "Call out .error.txt as expected compatibility signal",
+    "Verify folder facts directly before writing docs claims"
+  ],
+  "next_steps": [
+    "When shape cases evolve, regenerate examples and update README in same change",
+    "Optionally add a mini directory tree snippet for faster visual onboarding"
+  ]
+}

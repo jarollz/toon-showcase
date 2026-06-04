@@ -204,6 +204,32 @@ Output encoded examples to custom directory:
 go run . -output-example=true -output-example-dir ./output/examples_manual
 ```
 
+## Checked-in encoded examples (`encoded-examples/`)
+
+This repo includes committed sample output at `encoded-examples/` for quick inspection of full shape-case payloads without running the tool.
+
+- One directory per format: `json-compact`, `json-pretty`, `toon`, `yaml`, `toml`, `xml-compact`, `xml-pretty`, `messagepack`.
+- Each format contains the same 7 shape-case filenames from the shape compatibility matrix.
+- File suffix meaning:
+  - `.txt`: encode succeeded (text formats)
+  - `.bin`: encode succeeded (binary format, currently MessagePack)
+  - `.error.txt`: encode failed for that `(format, shape case)`; file content is encoder error message.
+
+Expected failure artifacts in this snapshot:
+
+- `toml`: `map_non_string_key`, `slice_pointer_with_nil`
+- `toon`: `map_non_string_key`
+- `xml-compact` and `xml-pretty`: `map_non_string_key`, `map_string_to_slice_struct`, `nested_slice_map`, `slice_map_string`
+
+To regenerate fresh examples from current code:
+
+```bash
+go run . -output-example=true -output-example-dir ./output/examples_manual -no-progress
+```
+
+Generated files are written under `./output/examples_manual/shape-encoded/`.
+`encoded-examples/` is checked-in sample copy for reference.
+
 ## CSV output mode
 
 Write CSV files:
