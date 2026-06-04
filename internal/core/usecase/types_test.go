@@ -46,18 +46,17 @@ func TestGenerateDatasetDeterministic(t *testing.T) {
 }
 
 func TestOptionsValidate(t *testing.T) {
-	valid := Options{Records: 1, Iters: 1, Warmup: 0, IndentSize: 1, Baseline: "toon", CSVMode: "off"}
+	valid := Options{Records: 1, Iters: 1, Warmup: 0, IndentSize: 1, Baseline: "toon"}
 	if err := valid.Validate(); err != nil {
 		t.Fatalf("valid options should pass: %v", err)
 	}
 
 	tests := []Options{
-		{Records: 0, Iters: 1, Warmup: 0, IndentSize: 1, Baseline: "toon", CSVMode: "off"},
-		{Records: 1, Iters: 0, Warmup: 0, IndentSize: 1, Baseline: "toon", CSVMode: "off"},
-		{Records: 1, Iters: 1, Warmup: -1, IndentSize: 1, Baseline: "toon", CSVMode: "off"},
-		{Records: 1, Iters: 1, Warmup: 0, IndentSize: 0, Baseline: "toon", CSVMode: "off"},
-		{Records: 1, Iters: 1, Warmup: 0, IndentSize: 1, Baseline: "toon", CSVMode: "bad"},
-		{Records: 1, Iters: 1, Warmup: 0, IndentSize: 1, Baseline: "bad", CSVMode: "off"},
+		{Records: 0, Iters: 1, Warmup: 0, IndentSize: 1, Baseline: "toon"},
+		{Records: 1, Iters: 0, Warmup: 0, IndentSize: 1, Baseline: "toon"},
+		{Records: 1, Iters: 1, Warmup: -1, IndentSize: 1, Baseline: "toon"},
+		{Records: 1, Iters: 1, Warmup: 0, IndentSize: 0, Baseline: "toon"},
+		{Records: 1, Iters: 1, Warmup: 0, IndentSize: 1, Baseline: "bad"},
 	}
 
 	for i, tc := range tests {
@@ -66,21 +65,21 @@ func TestOptionsValidate(t *testing.T) {
 		}
 	}
 
-	if err := (Options{Records: 1, Iters: 1, Warmup: 0, IndentSize: 1, Baseline: "toon", CSVMode: "off", OutputExample: true, OutputExampleDir: "   "}).Validate(); err != nil {
-		t.Fatalf("output example should allow empty dir (auto default): %v", err)
+	if err := (Options{Records: 1, Iters: 1, Warmup: 0, IndentSize: 1, Baseline: "toon", EncodedExamplesDir: "   "}).Validate(); err != nil {
+		t.Fatalf("encoded examples dir should allow empty/trimmed value: %v", err)
 	}
 }
 
-func TestResolveOutputExampleDir(t *testing.T) {
+func TestResolveEncodedExamplesDir(t *testing.T) {
 	now := time.Date(2026, 6, 4, 23, 59, 58, 0, time.FixedZone("UTC+8", 8*60*60))
 
-	got := ResolveOutputExampleDir("", now)
-	want := "output/examples_20260604_235958_+0800"
+	got := ResolveEncodedExamplesDir("", now)
+	want := ""
 	if got != want {
 		t.Fatalf("resolved dir = %q, want %q", got, want)
 	}
 
-	got = ResolveOutputExampleDir(" custom/path ", now)
+	got = ResolveEncodedExamplesDir(" custom/path ", now)
 	if got != "custom/path" {
 		t.Fatalf("custom dir should be trimmed, got %q", got)
 	}

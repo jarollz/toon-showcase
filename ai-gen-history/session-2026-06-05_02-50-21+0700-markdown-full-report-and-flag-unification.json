@@ -1,0 +1,123 @@
+{
+  "session_timestamp": "2026-06-05_02-50-21+0700",
+  "project": {
+    "name": "toon-showcase",
+    "repo": "unknown",
+    "branch": "main"
+  },
+  "topic": "markdown-full-report-and-flag-unification",
+  "user_goals": [
+    "Add markdown export with proper markdown formatting and emoji benchmark comparison",
+    "Improve progress bar rendering and stale tail behavior",
+    "Simplify CSV/output-example flags into path-based single flags",
+    "Refresh README benchmark snapshot using latest benchmark-snapshot markdown"
+  ],
+  "starting_state": [
+    "CLI used dual flags for CSV and encoded examples",
+    "Markdown export emitted benchmark-only subset",
+    "Progress rendering could leave stale trailing characters on shorter updates",
+    "README benchmark snapshot pointed to older data"
+  ],
+  "collaboration_timeline": [
+    "Converted output controls to -csv-dir, -md-file, -encoded-examples-dir contracts",
+    "Implemented stdout sentinel semantics for -csv-dir and -md-file",
+    "Added Glamour dark rendering for markdown stdout mode",
+    "Expanded markdown builder from benchmark-only to full report conversion",
+    "Updated README benchmark snapshot values and linked complete snapshot file"
+  ],
+  "decisions": [
+    {
+      "decision": "Keep markdown file output clean and report-focused",
+      "rationale": "User explicitly preferred cleaner output and no shell wrapper lines in markdown file",
+      "impact": "Generated markdown contains only app report content"
+    },
+    {
+      "decision": "Use reserved sentinel 'stdout' for selected output flags",
+      "rationale": "Maintains single-flag UX while preserving stdout mode for CSV and markdown",
+      "impact": "Documentation now includes './stdout' guidance for literal path names"
+    },
+    {
+      "decision": "Validate directory-only semantics for csv and encoded examples",
+      "rationale": "User requested strict directory expectation and one-table-per-csv-file behavior",
+      "impact": "Path validation errors are now explicit when a file path is passed"
+    }
+  ],
+  "implementation": {
+    "files_changed": [
+      "README.md",
+      "benchmark-snapshot/snapshot_20260605_023027.md",
+      "go.mod",
+      "go.sum",
+      "main.go",
+      "main_test.go",
+      "run_showcase.sh",
+      "internal/infrastructure/cli/flags.go",
+      "internal/infrastructure/cli/flags_test.go",
+      "internal/infrastructure/cli/coverage_smoke_test.go",
+      "internal/core/usecase/types.go",
+      "internal/core/usecase/types_test.go",
+      "internal/core/usecase/run.go",
+      "internal/core/usecase/run_test.go",
+      "internal/adapter/presenter/csv.go",
+      "internal/adapter/presenter/csv_test.go",
+      "internal/adapter/presenter/progress.go",
+      "internal/adapter/presenter/progress_test.go",
+      "internal/adapter/presenter/markdown.go",
+      "internal/adapter/presenter/markdown_test.go",
+      "internal/adapter/presenter/optional_output.go",
+      "internal/adapter/presenter/optional_output_test.go",
+      "internal/adapter/codec/coverage_smoke_test.go",
+      "internal/core/entity/coverage_smoke_test.go"
+    ],
+    "behavior_changes": [
+      "Full markdown report generation now includes benchmark, ratio, delta, samples, notes, charset, and shape sections",
+      "CSV writing uses -csv-dir with fixed output filenames and stdout sentinel mode",
+      "Encoded examples writing uses -encoded-examples-dir only and no timestamped auto directory",
+      "Progress rendering now clears stale tail text and frames output with blank lines",
+      "README benchmark snapshot and quick-read deltas updated to seed 1780601429"
+    ]
+  },
+  "verification": [
+    {
+      "command": "go test ./...",
+      "result": "pass"
+    },
+    {
+      "command": "go run . -records 20 -iters 50 -warmup 5 -no-progress",
+      "result": "pass"
+    },
+    {
+      "command": "go run . -records 5 -iters 5 -warmup 1 -no-progress -md-file stdout",
+      "result": "pass"
+    },
+    {
+      "command": "go run . -records 5 -iters 5 -warmup 1 -no-progress -md-file benchmark-snapshot/_tmp_full.md",
+      "result": "pass"
+    },
+    {
+      "command": "make ci",
+      "result": "fail (coverage 88.5%, required 90.0%)"
+    }
+  ],
+  "artifacts_generated": [
+    "benchmark-snapshot/snapshot_20260605_023027.md",
+    "ai-gen-history/session-2026-06-05_02-50-21+0700-markdown-full-report-and-flag-unification.md",
+    "ai-gen-history/session-2026-06-05_02-50-21+0700-markdown-full-report-and-flag-unification.json"
+  ],
+  "risks_tradeoffs": [
+    "Current branch does not satisfy repo coverage gate; commit may fail downstream CI checks",
+    "Go toolchain minimum moved to 1.25.8 due glamour v2 dependency",
+    "Coverage smoke tests added for instrumentation behavior may be viewed as non-functional tests"
+  ],
+  "session_knowledge": [
+    "Structured DTO-based markdown generation is more reliable than parsing terminal text",
+    "Sentinel-based single flags reduce user confusion for optional outputs",
+    "Progress bars using carriage return need trailing space cleanup to avoid stale visual artifacts",
+    "Documenting reserved sentinels with './stdout' fallback avoids path ambiguity"
+  ],
+  "next_steps": [
+    "Improve coverage for orchestration paths until make ci passes",
+    "Re-run make ci and remove generated .coverage.out before commit",
+    "Commit and push once gate is green"
+  ]
+}

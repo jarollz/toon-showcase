@@ -1,6 +1,8 @@
 package presenter
 
 import (
+	"bytes"
+	"strings"
 	"testing"
 	"time"
 )
@@ -30,4 +32,27 @@ func TestProgressBarNoStartFinish(t *testing.T) {
 	p := pAny.(*progressBar)
 	p.Finish()
 	p.render(true)
+}
+
+func TestProgressBarRenderClearsStaleTextAndFramesWithNewlines(t *testing.T) {
+	buf := &bytes.Buffer{}
+	pAny := NewProgressBarWithWriter(10, buf)
+	p := pAny.(*progressBar)
+
+	p.SetStage("very long stage")
+	p.render(false)
+	p.SetStage("short")
+	p.render(false)
+	p.render(true)
+
+	out := buf.String()
+	if !strings.HasPrefix(out, "\n") {
+		t.Fatalf("progress output should start with newline, got: %q", out)
+	}
+	if !strings.Contains(out, "short ") {
+		t.Fatalf("expected whitespace cleanup for shorter render, got: %q", out)
+	}
+	if !strings.HasSuffix(out, "\n\n") {
+		t.Fatalf("progress output should end with blank line, got: %q", out)
+	}
 }

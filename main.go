@@ -35,37 +35,23 @@ func run(args []string, stdout, stderr io.Writer, now func() time.Time) int {
 		return 1
 	}
 
-	presenter.PrintBenchmarkReport(stdout, out.Results, out.Baseline, opts.Records, opts.Iters, opts.Warmup, out.ResolvedSeed, opts.IndentSize)
-	presenter.PrintCharsetMatrix(stdout, out.Charset)
-	presenter.PrintShapeMatrix(stdout, out.Shape)
-	if opts.OutputExample {
-		fmt.Fprintf(stdout, "Encoded examples output dir: %s\n", out.ResolvedOutputExampleDir)
-		if err := presenter.WriteShapeEncodedExamples(out.ResolvedOutputExampleDir, out.Shape.EncodedArtifacts); err != nil {
-			fmt.Fprintln(stderr, fmt.Sprintf("failed to write encoded examples: %v", err))
-			return 1
-		}
+	if !presenter.IsMarkdownStdout(opts.MarkdownFile) {
+		presenter.PrintBenchmarkReport(stdout, out.Results, out.Baseline, opts.Records, opts.Iters, opts.Warmup, out.ResolvedSeed, opts.IndentSize)
+		presenter.PrintCharsetMatrix(stdout, out.Charset)
+		presenter.PrintShapeMatrix(stdout, out.Shape)
 	}
 
-	if opts.CSVMode == "off" {
-		return 0
+	if err := presenter.EmitEncodedExamplesOutput(stdout, opts.EncodedExamplesDir, out.ResolvedOutputExampleDir, out.Shape.EncodedArtifacts); err != nil {
+		fmt.Fprintln(stderr, err.Error())
+		return 1
 	}
 
-	benchmarkCSV, err := presenter.BuildBenchmarkCSV(out.Results, out.Baseline, opts.Records, opts.Iters, opts.Warmup, out.ResolvedSeed, opts.IndentSize)
-	if err != nil {
-		fmt.Fprintln(stderr, fmt.Sprintf("failed to build benchmark csv: %v", err))
+	if err := presenter.EmitMarkdownOutput(stdout, opts.MarkdownFile, presenter.BuildFullMarkdownReport(out.Results, out.Baseline, out.Charset, out.Shape, opts.Records, opts.Iters, opts.Warmup, out.ResolvedSeed, opts.IndentSize)); err != nil {
+		fmt.Fprintln(stderr, err.Error())
 		return 1
 	}
-	charsetCSV, err := presenter.BuildCharsetCSV(out.Charset)
-	if err != nil {
-		fmt.Fprintln(stderr, fmt.Sprintf("failed to build charset csv: %v", err))
-		return 1
-	}
-	shapeCSV, err := presenter.BuildShapeCSV(out.Shape)
-	if err != nil {
-		fmt.Fprintln(stderr, fmt.Sprintf("failed to build shape csv: %v", err))
-		return 1
-	}
-	if err := presenter.EmitCSVs(stdout, opts.CSVMode, opts.CSVFile, benchmarkCSV, charsetCSV, shapeCSV); err != nil {
+
+	if err := presenter.EmitCSVOutput(stdout, opts.CSVDir, out.Results, out.Baseline, out.Charset, out.Shape, opts.Records, opts.Iters, opts.Warmup, out.ResolvedSeed, opts.IndentSize); err != nil {
 		fmt.Fprintln(stderr, err.Error())
 		return 1
 	}

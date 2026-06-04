@@ -2,6 +2,7 @@ package presenter
 
 import (
 	"fmt"
+	"io"
 	"os"
 	"strings"
 	"sync"
@@ -12,24 +13,36 @@ import (
 )
 
 type progressBar struct {
-	total   int64
-	done    int64
-	stageMu sync.RWMutex
-	stage   string
-	stopCh  chan struct{}
-	stopped chan struct{}
-	started bool
-	startMu sync.Mutex
+	total       int64
+	done        int64
+	stageMu     sync.RWMutex
+	stage       string
+	stopCh      chan struct{}
+	stopped     chan struct{}
+	started     bool
+	startMu     sync.Mutex
+	renderMu    sync.Mutex
+	writer      io.Writer
+	lastWidth   int
+	frameOpened bool
 }
 
 func NewProgressBar(total int64) usecase.Progress {
+	return NewProgressBarWithWriter(total, os.Stderr)
+}
+
+func NewProgressBarWithWriter(total int64, writer io.Writer) usecase.Progress {
 	if total <= 0 {
 		total = 1
+	}
+	if writer == nil {
+		writer = os.Stderr
 	}
 	return &progressBar{
 		total:   total,
 		stopCh:  make(chan struct{}),
 		stopped: make(chan struct{}),
+		writer:  writer,
 	}
 }
 
@@ -85,6 +98,9 @@ func (p *progressBar) renderLoop() {
 }
 
 func (p *progressBar) render(final bool) {
+	p.renderMu.Lock()
+	defer p.renderMu.Unlock()
+
 	done := atomic.LoadInt64(&p.done)
 	total := p.total
 	if done > total {
@@ -120,8 +136,19 @@ func (p *progressBar) render(final bool) {
 		stage = "processing"
 	}
 
-	fmt.Fprintf(os.Stderr, "\rProgress [%s] %6.2f%% (%d/%d) %s", bar, percent, done, total, stage)
+	line := fmt.Sprintf("\rProgress [%s] %6.2f%% (%d/%d) %s", bar, percent, done, total, stage)
+	if !p.frameOpened {
+		fmt.Fprintln(p.writer)
+		p.frameOpened = true
+	}
+	pad := ""
+	if p.lastWidth > len(line) {
+		pad = strings.Repeat(" ", p.lastWidth-len(line))
+	}
+	fmt.Fprintf(p.writer, "%s%s", line, pad)
+	p.lastWidth = len(line)
 	if final {
-		fmt.Fprintln(os.Stderr)
+		fmt.Fprintln(p.writer)
+		fmt.Fprintln(p.writer)
 	}
 }

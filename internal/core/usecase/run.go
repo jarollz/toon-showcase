@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"fmt"
+	"strings"
 
 	"toon-showcase/internal/core/entity"
 )
@@ -30,8 +31,8 @@ func (r Runner) Run(opts Options) (RunOutput, error) {
 	}
 
 	resolvedOutputExampleDir := ""
-	if opts.OutputExample {
-		resolvedOutputExampleDir = ResolveOutputExampleDir(opts.OutputExampleDir, now())
+	if strings.TrimSpace(opts.EncodedExamplesDir) != "" {
+		resolvedOutputExampleDir = ResolveEncodedExamplesDir(opts.EncodedExamplesDir, now())
 	}
 
 	dataset := GenerateDataset(opts.Records, seed)

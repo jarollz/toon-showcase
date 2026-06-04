@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -137,8 +138,8 @@ func BuildShapeCSV(report entity.ShapeMatrix) (string, error) {
 	return buf.String(), nil
 }
 
-func EmitCSVs(w io.Writer, mode, benchmarkPath, benchmarkCSV, charsetCSV, shapeCSV string) error {
-	if mode == "stdout" {
+func EmitCSVs(w io.Writer, csvDir, benchmarkCSV, charsetCSV, shapeCSV string) error {
+	if csvDir == "stdout" {
 		fmt.Fprintln(w, "=== CSV Benchmark Output ===")
 		fmt.Fprint(w, benchmarkCSV)
 		fmt.Fprintln(w, "=== CSV Charset Output ===")
@@ -148,6 +149,13 @@ func EmitCSVs(w io.Writer, mode, benchmarkPath, benchmarkCSV, charsetCSV, shapeC
 		return nil
 	}
 
+	if csvDir == "" {
+		return nil
+	}
+	if err := ensureDirectory(csvDir); err != nil {
+		return fmt.Errorf("invalid csv dir: %w", err)
+	}
+	benchmarkPath := filepath.Join(csvDir, "benchmark_report.csv")
 	if err := os.WriteFile(benchmarkPath, []byte(benchmarkCSV), 0644); err != nil {
 		return fmt.Errorf("failed to write benchmark csv: %w", err)
 	}
@@ -162,6 +170,27 @@ func EmitCSVs(w io.Writer, mode, benchmarkPath, benchmarkCSV, charsetCSV, shapeC
 	fmt.Fprintf(w, "CSV written: %s\n", benchmarkPath)
 	fmt.Fprintf(w, "CSV written: %s\n", charsetPath)
 	fmt.Fprintf(w, "CSV written: %s\n", shapePath)
+	return nil
+}
+
+func ensureDirectory(path string) error {
+	trimmed := strings.TrimSpace(path)
+	if trimmed == "" {
+		return nil
+	}
+	info, err := os.Stat(trimmed)
+	if err == nil {
+		if !info.IsDir() {
+			return fmt.Errorf("path %q exists and is not a directory", trimmed)
+		}
+		return nil
+	}
+	if !os.IsNotExist(err) {
+		return err
+	}
+	if mkErr := os.MkdirAll(trimmed, 0755); mkErr != nil {
+		return mkErr
+	}
 	return nil
 }
 

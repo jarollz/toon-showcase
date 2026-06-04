@@ -98,7 +98,7 @@ func TestBuildCharsetAndShapeCSV(t *testing.T) {
 
 func TestEmitCSVs(t *testing.T) {
 	out := &bytes.Buffer{}
-	if err := EmitCSVs(out, "stdout", "x.csv", "a", "b", "c"); err != nil {
+	if err := EmitCSVs(out, "stdout", "a", "b", "c"); err != nil {
 		t.Fatalf("EmitCSVs stdout error: %v", err)
 	}
 	if !strings.Contains(out.String(), "CSV Benchmark Output") {
@@ -106,23 +106,31 @@ func TestEmitCSVs(t *testing.T) {
 	}
 
 	dir := t.TempDir()
-	path := filepath.Join(dir, "report.csv")
 	out.Reset()
-	if err := EmitCSVs(out, "file", path, "a", "b", "c"); err != nil {
+	if err := EmitCSVs(out, dir, "a", "b", "c"); err != nil {
 		t.Fatalf("EmitCSVs file error: %v", err)
 	}
+	path := filepath.Join(dir, "benchmark_report.csv")
 	if _, err := os.Stat(path); err != nil {
 		t.Fatalf("benchmark file missing: %v", err)
 	}
-	if _, err := os.Stat(filepath.Join(dir, "report.charset.csv")); err != nil {
+	if _, err := os.Stat(filepath.Join(dir, "benchmark_report.charset.csv")); err != nil {
 		t.Fatalf("charset file missing: %v", err)
 	}
-	if _, err := os.Stat(filepath.Join(dir, "report.shape.csv")); err != nil {
+	if _, err := os.Stat(filepath.Join(dir, "benchmark_report.shape.csv")); err != nil {
 		t.Fatalf("shape file missing: %v", err)
 	}
 
-	if err := EmitCSVs(out, "file", "/not/a/real/path/report.csv", "a", "b", "c"); err == nil {
+	if err := EmitCSVs(out, "/not/a/real/path/report.csv", "a", "b", "c"); err == nil {
 		t.Fatalf("expected write error")
+	}
+
+	filePath := filepath.Join(t.TempDir(), "file.txt")
+	if err := os.WriteFile(filePath, []byte("x"), 0644); err != nil {
+		t.Fatalf("setup file path failed: %v", err)
+	}
+	if err := EmitCSVs(out, filePath, "a", "b", "c"); err == nil {
+		t.Fatalf("expected directory validation error")
 	}
 }
 

@@ -31,11 +31,12 @@ Presets:
   full   -> records=300, iters=1200, warmup=120 (default)
 
 Environment overrides:
-  RECORDS ITERS WARMUP INDENT SEED CSV_MODE CSV_FILE OUTPUT_DIR OUTPUT_EXAMPLE OUTPUT_EXAMPLE_DIR
+  RECORDS ITERS WARMUP INDENT SEED CSV_DIR MD_FILE ENCODED_EXAMPLES_DIR
 
 Notes:
   - Default seed is -1 (program resolves to current unix timestamp).
-  - Default CSV_MODE is off.
+  - Empty CSV_DIR disables CSV output.
+  - CSV_DIR=stdout prints CSV tables to terminal.
   - Extra args are forwarded to `go run .`.
 EOF
       exit 0
@@ -74,17 +75,9 @@ ITERS="${ITERS:-${DEFAULT_ITERS}}"
 WARMUP="${WARMUP:-${DEFAULT_WARMUP}}"
 INDENT="${INDENT:-2}"
 SEED="${SEED:--1}"
-CSV_MODE="${CSV_MODE:-off}"
-OUTPUT_EXAMPLE="${OUTPUT_EXAMPLE:-false}"
-OUTPUT_EXAMPLE_DIR="${OUTPUT_EXAMPLE_DIR:-}"
-
-timestamp="$(date +%Y%m%d_%H%M%S)"
-OUTPUT_DIR="${OUTPUT_DIR:-${SCRIPT_DIR}/output}"
-CSV_FILE="${CSV_FILE:-${OUTPUT_DIR}/benchmark_${timestamp}.csv}"
-
-if [[ "${CSV_MODE}" == "file" ]]; then
-  mkdir -p "${OUTPUT_DIR}"
-fi
+CSV_DIR="${CSV_DIR:-}"
+MD_FILE="${MD_FILE:-}"
+ENCODED_EXAMPLES_DIR="${ENCODED_EXAMPLES_DIR:-}"
 
 echo "Running TOON showcase with preset: ${PRESET}"
 echo "- records=${RECORDS}"
@@ -92,13 +85,14 @@ echo "- iters=${ITERS}"
 echo "- warmup=${WARMUP}"
 echo "- indent=${INDENT}"
 echo "- seed=${SEED}"
-echo "- csv_mode=${CSV_MODE}"
-if [[ "${CSV_MODE}" == "file" ]]; then
-  echo "- csv_file=${CSV_FILE}"
+if [[ -n "${CSV_DIR}" ]]; then
+  echo "- csv_dir=${CSV_DIR}"
 fi
-echo "- output_example=${OUTPUT_EXAMPLE}"
-if [[ -n "${OUTPUT_EXAMPLE_DIR}" ]]; then
-  echo "- output_example_dir=${OUTPUT_EXAMPLE_DIR}"
+if [[ -n "${MD_FILE}" ]]; then
+  echo "- md_file=${MD_FILE}"
+fi
+if [[ -n "${ENCODED_EXAMPLES_DIR}" ]]; then
+  echo "- encoded_examples_dir=${ENCODED_EXAMPLES_DIR}"
 fi
 
 cmd=(
@@ -108,16 +102,18 @@ cmd=(
   -warmup "${WARMUP}"
   -indent "${INDENT}"
   -seed "${SEED}"
-  -csv "${CSV_MODE}"
-  -output-example="${OUTPUT_EXAMPLE}"
 )
 
-if [[ "${CSV_MODE}" == "file" ]]; then
-  cmd+=( -csv-file "${CSV_FILE}" )
+if [[ -n "${CSV_DIR}" ]]; then
+  cmd+=( -csv-dir "${CSV_DIR}" )
 fi
 
-if [[ -n "${OUTPUT_EXAMPLE_DIR}" ]]; then
-  cmd+=( -output-example-dir "${OUTPUT_EXAMPLE_DIR}" )
+if [[ -n "${MD_FILE}" ]]; then
+  cmd+=( -md-file "${MD_FILE}" )
+fi
+
+if [[ -n "${ENCODED_EXAMPLES_DIR}" ]]; then
+  cmd+=( -encoded-examples-dir "${ENCODED_EXAMPLES_DIR}" )
 fi
 
 if [[ "${#PASSTHROUGH_ARGS[@]}" -gt 0 ]]; then

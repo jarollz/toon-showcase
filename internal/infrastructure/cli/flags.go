@@ -17,27 +17,25 @@ func Parse(args []string) (usecase.Options, error) {
 	sampleLimit := fs.Int("sample-limit", 180, "max characters shown for encoded sample")
 	noProgress := fs.Bool("no-progress", false, "disable animated progress bar")
 	baseline := fs.String("baseline", "toon", "baseline format for ratio/delta: toon|json-compact|json-pretty|yaml|toml|xml-compact|xml-pretty|messagepack")
-	csvMode := fs.String("csv", "off", "csv output mode: off|stdout|file")
-	csvFile := fs.String("csv-file", "benchmark_report.csv", "csv output path when -csv=file")
-	outputExample := fs.Bool("output-example", false, "write full encoded examples by format and shape case")
-	outputExampleDir := fs.String("output-example-dir", "", "base directory for encoded examples; empty means auto default")
+	csvDir := fs.String("csv-dir", "", "csv output directory, or reserved sentinel 'stdout' to print; empty disables csv")
+	mdFile := fs.String("md-file", "", "markdown report output file, or reserved sentinel 'stdout' for terminal rendering")
+	encodedExamplesDir := fs.String("encoded-examples-dir", "", "directory for full encoded examples by format and shape case; empty disables output")
 
 	if err := fs.Parse(args); err != nil {
 		return usecase.Options{}, err
 	}
 
 	return usecase.Options{
-		Records:          *records,
-		Iters:            *iters,
-		Warmup:           *warmup,
-		Seed:             *seed,
-		IndentSize:       *indentSize,
-		SampleLimit:      *sampleLimit,
-		NoProgress:       *noProgress,
-		Baseline:         *baseline,
-		CSVMode:          *csvMode,
-		CSVFile:          *csvFile,
-		OutputExample:    *outputExample,
-		OutputExampleDir: *outputExampleDir,
+		Records:            *records,
+		Iters:              *iters,
+		Warmup:             *warmup,
+		Seed:               *seed,
+		IndentSize:         *indentSize,
+		SampleLimit:        *sampleLimit,
+		NoProgress:         *noProgress,
+		Baseline:           *baseline,
+		CSVDir:             *csvDir,
+		MarkdownFile:       *mdFile,
+		EncodedExamplesDir: *encodedExamplesDir,
 	}, nil
 }

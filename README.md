@@ -22,22 +22,24 @@ Comparison aspects:
 
 ## Benchmark snapshot (MacBook Pro M1 Pro)
 
-Sample run on personal MacBook Pro M1 Pro using full preset (`records=300`, `iters=1200`, `warmup=120`, `seed=1780566620`). Source: `output/LASTRUN.txt`.
+Sample run on personal MacBook Pro M1 Pro using full preset (`records=300`, `iters=1200`, `warmup=120`, `seed=1780601429`). Source: `benchmark-snapshot/snapshot_20260605_023027.md`.
 
 Environment note: personal laptop (`Apple Silicon M1 Pro`), single local run snapshot for quick comparison (not a controlled lab benchmark).
 
 Reproduce this snapshot: `./run_showcase.sh --preset full -no-progress`
 
+For complete details (including charset and shape sections), see [`benchmark-snapshot/snapshot_20260605_023027.md`](benchmark-snapshot/snapshot_20260605_023027.md).
+
 | Format | Marshal (ns/op) | Unmarshal (ns/op) | Bytes | Roundtrip |
 | --- | ---: | ---: | ---: | :---: |
-| JSON compact | 939,708 | 5,019,143 | 503,547 | ok |
-| JSON pretty | 3,833,217 | 6,981,475 | 874,689 | ok |
-| TOON | 5,802,221 | 7,128,738 | 487,180 | ok |
-| YAML | 22,252,406 | 28,063,857 | 638,241 | ok |
-| TOML | 17,243,525 | 36,782,208 | 754,286 | ok |
-| XML compact | 4,295,982 | 21,441,007 | 724,441 | ok |
-| XML pretty | 5,394,372 | 25,848,742 | 1,074,418 | ok |
-| MessagePack | 992,791 | 2,081,718 | 419,879 | ok |
+| JSON compact | 941,834 | 5,128,791 | 503,572 | ok |
+| JSON pretty | 3,704,891 | 6,926,182 | 874,714 | ok |
+| TOON | 5,848,249 | 7,025,284 | 487,205 | ok |
+| YAML | 25,221,971 | 27,765,547 | 638,266 | ok |
+| TOML | 17,435,765 | 35,610,408 | 754,281 | ok |
+| XML compact | 4,159,604 | 20,866,120 | 724,466 | ok |
+| XML pretty | 5,425,438 | 25,723,025 | 1,074,443 | ok |
+| MessagePack | 1,030,919 | 2,062,222 | 419,879 | ok |
 
 Percent delta vs TOON baseline (`-` means faster/smaller, `+` means slower/larger):
 
@@ -45,19 +47,19 @@ Emoji legend: `✅` better, `❌` worse, `➖` same.
 
 | Format | Marshal delta | Unmarshal delta | Bytes delta |
 | --- | ---: | ---: | ---: |
-| JSON compact | -83.8% ✅ | -29.6% ✅ | +3.4% ❌ |
-| JSON pretty | -33.9% ✅ | -2.1% ✅ | +79.5% ❌ |
-| YAML | +283.5% ❌ | +293.7% ❌ | +31.0% ❌ |
-| TOML | +197.2% ❌ | +416.0% ❌ | +54.8% ❌ |
-| XML compact | -26.0% ✅ | +200.8% ❌ | +48.7% ❌ |
-| XML pretty | -7.0% ✅ | +262.6% ❌ | +120.5% ❌ |
-| MessagePack (binary) | -82.9% ✅ | -70.8% ✅ | -13.8% ✅ |
+| JSON compact | -83.9% ✅ | -27.0% ✅ | +3.4% ❌ |
+| JSON pretty | -36.6% ✅ | -1.4% ✅ | +79.5% ❌ |
+| YAML | +331.3% ❌ | +295.2% ❌ | +31.0% ❌ |
+| TOML | +198.1% ❌ | +406.9% ❌ | +54.8% ❌ |
+| XML compact | -28.9% ✅ | +197.0% ❌ | +48.7% ❌ |
+| XML pretty | -7.2% ✅ | +266.1% ❌ | +120.5% ❌ |
+| MessagePack (binary) | -82.4% ✅ | -70.6% ✅ | -13.8% ✅ |
 
 Quick read (all compared to TOON):
 
-- Speed vs TOON: `JSON compact` (`-83.8%` marshal ✅, `-29.6%` unmarshal ✅), `MessagePack` (`-82.9%` marshal ✅, `-70.8%` unmarshal ✅; binary).
+- Speed vs TOON: `JSON compact` (`-83.9%` marshal ✅, `-27.0%` unmarshal ✅), `MessagePack` (`-82.4%` marshal ✅, `-70.6%` unmarshal ✅; binary).
 - Size vs TOON: `MessagePack` (`-13.8%` ✅), `JSON compact` (`+3.4%` ❌), `JSON pretty` (`+79.5%` ❌), `XML pretty` (`+120.5%` ❌).
-- Unmarshal penalty vs TOON: `XML compact` (`+200.8%` ❌), `XML pretty` (`+262.6%` ❌), `YAML` (`+293.7%` ❌), `TOML` (`+416.0%` ❌); XML marshal still faster (`-26.0%` ✅ / `-7.0%` ✅).
+- Unmarshal penalty vs TOON: `XML compact` (`+197.0%` ❌), `XML pretty` (`+266.1%` ❌), `YAML` (`+295.2%` ❌), `TOML` (`+406.9%` ❌); XML marshal still faster (`-28.9%` ✅ / `-7.2%` ✅).
 
 ## Run
 
@@ -115,30 +117,33 @@ All parameters are standard Go flags passed to `go run .`.
 
 ### Encoded example output controls
 
-- `-output-example` (default: `false`)
-  - Enables writing full encoded shape-case examples to files.
-  - `false`: skip file export.
-  - `true`: write one file per `(format, shape case)` from the shape matrix.
-
-- `-output-example-dir` (default: empty)
-  - Base directory for encoded example files.
-  - Used only when `-output-example=true`.
-  - If empty, the program auto-generates: `output/examples_[YYYYMMDD]_[HHmmss]_[+0800]`.
-  - Program output prints resolved directory path for quick lookup.
+- `-encoded-examples-dir` (default: empty)
+  - Directory for encoded shape-case example files.
+  - Empty value disables example export.
+  - Non-empty value must be a directory path (created automatically if missing).
+  - If the path exists and is a file, the program fails with a clear error.
+  - Files are written under `<dir>/shape-encoded/`.
 
 ### CSV output controls
 
-- `-csv` (default: `off`)
-  - CSV mode selector: `off`, `stdout`, or `file`.
-  - `off`: no CSV export.
-  - `stdout`: print benchmark CSV, charset CSV, and shape-compatibility CSV to terminal.
-  - `file`: write benchmark CSV, charset CSV, and shape-compatibility CSV files.
+- `-csv-dir` (default: empty)
+  - Empty value disables CSV export.
+  - `stdout` prints benchmark/charset/shape CSV to terminal.
+  - Any other non-empty value must be a directory path (created automatically if missing).
+  - If the path exists and is a file, the program fails with a clear error.
+  - Directory mode writes fixed files:
+    - `benchmark_report.csv`
+    - `benchmark_report.charset.csv`
+    - `benchmark_report.shape.csv`
+  - `stdout` is a reserved sentinel. If you want a literal directory named `stdout`, use `./stdout`.
 
-- `-csv-file` (default: `benchmark_report.csv`)
-  - Used when `-csv file` is selected.
-  - Primary benchmark CSV writes to this path.
-  - Charset CSV writes to derived path with `.charset.csv` suffix.
-  - Shape compatibility CSV writes to derived path with `.shape.csv` suffix.
+### Markdown output controls
+
+- `-md-file` (default: empty)
+  - Empty value disables markdown report output.
+  - `stdout` renders markdown report to terminal with Glamour `dark` theme.
+  - Any other non-empty value writes raw markdown report to that file.
+  - `stdout` is a reserved sentinel. If you want a literal file named `stdout`, use `./stdout`.
 
 ### Example commands
 
@@ -159,7 +164,7 @@ go run . -records 120 -iters 500 -warmup 50 -seed 20260604
 - Full run (more stable benchmark numbers):
 
 ```bash
-go run . -records 300 -iters 1200 -warmup 120 -seed 20260604 -csv file -csv-file benchmark_full.csv
+go run . -records 300 -iters 1200 -warmup 120 -seed 20260604 -csv-dir ./output
 ```
 
 Reproducible run:
@@ -183,7 +188,19 @@ go run . -baseline json-compact
 CSV to stdout:
 
 ```bash
-go run . -csv stdout
+go run . -csv-dir stdout
+```
+
+Markdown to file:
+
+```bash
+go run . -md-file ./output/report.md
+```
+
+Markdown rendered in terminal (Glamour dark theme):
+
+```bash
+go run . -md-file stdout
 ```
 
 Disable progress animation:
@@ -192,16 +209,10 @@ Disable progress animation:
 go run . -no-progress
 ```
 
-Output encoded examples to auto-generated directory:
-
-```bash
-go run . -output-example=true
-```
-
 Output encoded examples to custom directory:
 
 ```bash
-go run . -output-example=true -output-example-dir ./output/examples_manual
+go run . -encoded-examples-dir ./output/examples_manual
 ```
 
 ## Checked-in encoded examples (`encoded-examples/`)
@@ -224,7 +235,7 @@ Expected failure artifacts in this snapshot:
 To regenerate fresh examples from current code:
 
 ```bash
-go run . -output-example=true -output-example-dir ./output/examples_manual -no-progress
+go run . -encoded-examples-dir ./output/examples_manual -no-progress
 ```
 
 Generated files are written under `./output/examples_manual/shape-encoded/`.
@@ -235,7 +246,7 @@ Generated files are written under `./output/examples_manual/shape-encoded/`.
 Write CSV files:
 
 ```bash
-go run . -csv file -csv-file benchmark_report.csv
+go run . -csv-dir ./output
 ```
 
 This writes:
@@ -247,8 +258,10 @@ This writes:
 Print CSV to stdout instead:
 
 ```bash
-go run . -csv stdout
+go run . -csv-dir stdout
 ```
+
+Note: `stdout` is a reserved sentinel. If you want a literal output directory named `stdout`, use `./stdout`.
 
 Script supports env override and extra args:
 
@@ -267,10 +280,9 @@ RECORDS=200 ITERS=800 ./run_showcase.sh
   - `WARMUP=120`
   - `INDENT=2`
   - `SEED=-1` (current unix timestamp)
-  - `CSV_MODE=off`
-  - `OUTPUT_EXAMPLE=false`
-  - `OUTPUT_EXAMPLE_DIR=` (empty means app auto-generates timestamped output path)
-  - `OUTPUT_DIR=./output`
+  - `CSV_DIR=` (empty means off)
+  - `MD_FILE=` (empty means off)
+  - `ENCODED_EXAMPLES_DIR=` (empty means off)
 
 - Script presets:
   - `quick`: `RECORDS=20`, `ITERS=50`, `WARMUP=5`
@@ -286,10 +298,9 @@ Script env-to-flag mapping:
 - `WARMUP` -> `-warmup`
 - `INDENT` -> `-indent`
 - `SEED` -> `-seed`
-- `CSV_MODE` -> `-csv`
-- `CSV_FILE` -> `-csv-file`
-- `OUTPUT_EXAMPLE` -> `-output-example`
-- `OUTPUT_EXAMPLE_DIR` -> `-output-example-dir`
+- `CSV_DIR` -> `-csv-dir`
+- `MD_FILE` -> `-md-file`
+- `ENCODED_EXAMPLES_DIR` -> `-encoded-examples-dir`
 
 ## Notes on comparability
 

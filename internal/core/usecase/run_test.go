@@ -18,13 +18,13 @@ type fakeCodec struct {
 	unmarshalAny func([]byte, any) error
 }
 
-func (f fakeCodec) Key() string { return f.key }
-func (f fakeCodec) Name() string { return f.name }
-func (f fakeCodec) Binary() bool { return f.binary }
+func (f fakeCodec) Key() string                                       { return f.key }
+func (f fakeCodec) Name() string                                      { return f.name }
+func (f fakeCodec) Binary() bool                                      { return f.binary }
 func (f fakeCodec) EncodeData(d entity.BenchmarkData) ([]byte, error) { return f.encodeData(d) }
 func (f fakeCodec) DecodeData(b []byte) (entity.BenchmarkData, error) { return f.decodeData(b) }
-func (f fakeCodec) MarshalAny(v any) ([]byte, error) { return f.marshalAny(v) }
-func (f fakeCodec) UnmarshalAny(b []byte, v any) error { return f.unmarshalAny(b, v) }
+func (f fakeCodec) MarshalAny(v any) ([]byte, error)                  { return f.marshalAny(v) }
+func (f fakeCodec) UnmarshalAny(b []byte, v any) error                { return f.unmarshalAny(b, v) }
 
 type fakeProgress struct {
 	setStageCount int
@@ -39,7 +39,7 @@ func (p *fakeProgress) Advance(n int64) {
 		p.advanceCount += int(n)
 	}
 }
-func (p *fakeProgress) Start() { p.started = true }
+func (p *fakeProgress) Start()  { p.started = true }
 func (p *fakeProgress) Finish() { p.finished = true }
 
 func successCodec() fakeCodec {
@@ -75,7 +75,7 @@ func TestRunnerRunSuccess(t *testing.T) {
 		},
 	}
 
-	out, err := r.Run(Options{Records: 1, Iters: 1, Warmup: 0, Seed: -1, IndentSize: 2, SampleLimit: 10, Baseline: "toon", CSVMode: "off"})
+	out, err := r.Run(Options{Records: 1, Iters: 1, Warmup: 0, Seed: -1, IndentSize: 2, SampleLimit: 10, Baseline: "toon"})
 	if err != nil {
 		t.Fatalf("Run() unexpected error: %v", err)
 	}
@@ -102,7 +102,7 @@ func TestRunnerRunNoProgress(t *testing.T) {
 			return nil
 		},
 	}
-	_, err := r.Run(Options{Records: 1, Iters: 1, Warmup: 0, Seed: 1, IndentSize: 2, SampleLimit: 10, NoProgress: true, Baseline: "toon", CSVMode: "off"})
+	_, err := r.Run(Options{Records: 1, Iters: 1, Warmup: 0, Seed: 1, IndentSize: 2, SampleLimit: 10, NoProgress: true, Baseline: "toon"})
 	if err != nil {
 		t.Fatalf("Run() unexpected error: %v", err)
 	}
@@ -111,7 +111,7 @@ func TestRunnerRunNoProgress(t *testing.T) {
 func TestRunnerRunErrors(t *testing.T) {
 	t.Run("validate", func(t *testing.T) {
 		r := Runner{Codecs: []Codec{successCodec()}, Now: time.Now}
-		_, err := r.Run(Options{Records: 0, Iters: 1, Warmup: 0, Seed: 1, IndentSize: 2, SampleLimit: 10, Baseline: "toon", CSVMode: "off"})
+		_, err := r.Run(Options{Records: 0, Iters: 1, Warmup: 0, Seed: 1, IndentSize: 2, SampleLimit: 10, Baseline: "toon"})
 		if err == nil {
 			t.Fatalf("expected validation error")
 		}
@@ -119,7 +119,7 @@ func TestRunnerRunErrors(t *testing.T) {
 
 	t.Run("no codecs", func(t *testing.T) {
 		r := Runner{Now: time.Now}
-		_, err := r.Run(Options{Records: 1, Iters: 1, Warmup: 0, Seed: 1, IndentSize: 2, SampleLimit: 10, Baseline: "toon", CSVMode: "off"})
+		_, err := r.Run(Options{Records: 1, Iters: 1, Warmup: 0, Seed: 1, IndentSize: 2, SampleLimit: 10, Baseline: "toon"})
 		if err == nil {
 			t.Fatalf("expected no codecs error")
 		}
@@ -127,7 +127,7 @@ func TestRunnerRunErrors(t *testing.T) {
 
 	t.Run("nil clock", func(t *testing.T) {
 		r := Runner{Codecs: []Codec{successCodec()}}
-		_, err := r.Run(Options{Records: 1, Iters: 1, Warmup: 0, Seed: -1, IndentSize: 2, SampleLimit: 10, Baseline: "toon", CSVMode: "off"})
+		_, err := r.Run(Options{Records: 1, Iters: 1, Warmup: 0, Seed: -1, IndentSize: 2, SampleLimit: 10, Baseline: "toon"})
 		if err == nil {
 			t.Fatalf("expected clock error")
 		}
@@ -146,7 +146,7 @@ func TestRunnerRunErrors(t *testing.T) {
 				return p
 			},
 		}
-		_, err := r.Run(Options{Records: 1, Iters: 1, Warmup: 0, Seed: 1, IndentSize: 2, SampleLimit: 10, Baseline: "toon", CSVMode: "off"})
+		_, err := r.Run(Options{Records: 1, Iters: 1, Warmup: 0, Seed: 1, IndentSize: 2, SampleLimit: 10, Baseline: "toon"})
 		if err == nil {
 			t.Fatalf("expected benchmark error")
 		}
@@ -159,11 +159,22 @@ func TestRunnerRunErrors(t *testing.T) {
 		c := successCodec()
 		c.key = "json-compact"
 		r := Runner{Codecs: []Codec{c}, Now: time.Now}
-		_, err := r.Run(Options{Records: 1, Iters: 1, Warmup: 0, Seed: 1, IndentSize: 2, SampleLimit: 10, NoProgress: true, Baseline: "toon", CSVMode: "off"})
+		_, err := r.Run(Options{Records: 1, Iters: 1, Warmup: 0, Seed: 1, IndentSize: 2, SampleLimit: 10, NoProgress: true, Baseline: "toon"})
 		if err == nil {
 			t.Fatalf("expected baseline missing error")
 		}
 	})
+}
+
+func TestRunnerRunEncodedExamplesDirResolved(t *testing.T) {
+	r := Runner{Codecs: []Codec{successCodec()}, Now: func() time.Time { return time.Unix(100, 0) }}
+	out, err := r.Run(Options{Records: 1, Iters: 1, Warmup: 0, Seed: 1, IndentSize: 2, SampleLimit: 10, NoProgress: true, Baseline: "toon", EncodedExamplesDir: " examples "})
+	if err != nil {
+		t.Fatalf("Run() unexpected error: %v", err)
+	}
+	if out.ResolvedOutputExampleDir != "examples" {
+		t.Fatalf("resolved encoded examples dir = %q, want examples", out.ResolvedOutputExampleDir)
+	}
 }
 
 func TestTotalBenchmarkSteps(t *testing.T) {

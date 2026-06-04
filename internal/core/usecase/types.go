@@ -9,26 +9,22 @@ import (
 )
 
 type Options struct {
-	Records          int
-	Iters            int
-	Warmup           int
-	Seed             int64
-	IndentSize       int
-	SampleLimit      int
-	NoProgress       bool
-	Baseline         string
-	CSVMode          string
-	CSVFile          string
-	OutputExample    bool
-	OutputExampleDir string
+	Records            int
+	Iters              int
+	Warmup             int
+	Seed               int64
+	IndentSize         int
+	SampleLimit        int
+	NoProgress         bool
+	Baseline           string
+	CSVDir             string
+	MarkdownFile       string
+	EncodedExamplesDir string
 }
 
 func (o Options) Validate() error {
 	if o.Records <= 0 || o.Iters <= 0 || o.Warmup < 0 || o.IndentSize <= 0 {
 		return fmt.Errorf("records and iters must be > 0; warmup >= 0; indent > 0")
-	}
-	if o.CSVMode != "off" && o.CSVMode != "stdout" && o.CSVMode != "file" {
-		return fmt.Errorf("csv mode must be one of: off, stdout, file")
 	}
 	_, err := NormalizeBaselineKey(o.Baseline)
 	if err != nil {
@@ -37,12 +33,9 @@ func (o Options) Validate() error {
 	return nil
 }
 
-func ResolveOutputExampleDir(raw string, now time.Time) string {
+func ResolveEncodedExamplesDir(raw string, _ time.Time) string {
 	dir := strings.TrimSpace(raw)
-	if dir != "" {
-		return dir
-	}
-	return fmt.Sprintf("output/examples_%s_%s_%s", now.Format("20060102"), now.Format("150405"), now.Format("-0700"))
+	return dir
 }
 
 type RunOutput struct {
