@@ -1,6 +1,8 @@
 package presenter
 
 import (
+	"bytes"
+	"regexp"
 	"strings"
 	"testing"
 	"time"
@@ -113,4 +115,35 @@ func TestMarkdownDeltaHelpersAndEscape(t *testing.T) {
 	if got := mdEscapeCell("a|b\r\nc\nd\r"); got != "a\\|b<br>c<br>d<br>" {
 		t.Fatalf("mdEscapeCell mismatch: %q", got)
 	}
+}
+
+func TestRenderMarkdownDarkWithWidthWrapsDifferently(t *testing.T) {
+	md := "# Title\n\nThis line should wrap differently when width is narrow compared to when width is wide."
+
+	narrow, err := renderMarkdownDarkWithWidth(md, 40)
+	if err != nil {
+		t.Fatalf("render narrow width failed: %v", err)
+	}
+	wide, err := renderMarkdownDarkWithWidth(md, 120)
+	if err != nil {
+		t.Fatalf("render wide width failed: %v", err)
+	}
+
+	narrowPlain := stripANSI(narrow)
+	widePlain := stripANSI(wide)
+	if strings.Count(narrowPlain, "\n") <= strings.Count(widePlain, "\n") {
+		t.Fatalf("expected narrow output to wrap more lines; narrow=%d wide=%d\n--- narrow ---\n%s\n--- wide ---\n%s", strings.Count(narrowPlain, "\n"), strings.Count(widePlain, "\n"), narrowPlain, widePlain)
+	}
+}
+
+func TestResolveMarkdownRenderWidthFallbackForNonTerminalWriter(t *testing.T) {
+	buf := &bytes.Buffer{}
+	if got := resolveMarkdownRenderWidth(buf); got != 80 {
+		t.Fatalf("resolveMarkdownRenderWidth non-terminal fallback = %d, want 80", got)
+	}
+}
+
+func stripANSI(in string) string {
+	re := regexp.MustCompile("\\x1b\\[[0-9;]*m")
+	return re.ReplaceAllString(in, "")
 }

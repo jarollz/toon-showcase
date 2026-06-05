@@ -2,12 +2,19 @@ package presenter
 
 import (
 	"fmt"
+	"io"
 	"strings"
 	"time"
 
 	"charm.land/glamour/v2"
+	"github.com/charmbracelet/x/term"
 
 	"toon-showcase/internal/core/entity"
+)
+
+const (
+	defaultMarkdownRenderWidth = 80
+	minMarkdownRenderWidth     = 40
 )
 
 func BuildFullMarkdownReport(results []entity.BenchmarkResult, baseline entity.BenchmarkResult, charset entity.CharsetMatrix, shape entity.ShapeMatrix, records, iters, warmup int, seed int64, indentSize int) string {
@@ -148,7 +155,46 @@ func BuildBenchmarkMarkdownReport(results []entity.BenchmarkResult, baseline ent
 	return BuildFullMarkdownReport(results, baseline, entity.CharsetMatrix{}, entity.ShapeMatrix{}, records, iters, warmup, seed, indentSize)
 }
 
-func RenderMarkdownDark(md string) (string, error) { return glamour.Render(md, "dark") }
+func RenderMarkdownDark(md string) (string, error) {
+	return renderMarkdownDarkWithWidth(md, defaultMarkdownRenderWidth)
+}
+
+func renderMarkdownDarkWithWidth(md string, width int) (string, error) {
+	if width < minMarkdownRenderWidth {
+		width = minMarkdownRenderWidth
+	}
+	renderer, err := glamour.NewTermRenderer(
+		glamour.WithStandardStyle("dark"),
+		glamour.WithWordWrap(width),
+	)
+	if err != nil {
+		return "", err
+	}
+	return renderer.Render(md)
+}
+
+type fdWriter interface {
+	Fd() uintptr
+}
+
+func resolveMarkdownRenderWidth(w io.Writer) int {
+	fw, ok := w.(fdWriter)
+	if !ok {
+		return defaultMarkdownRenderWidth
+	}
+	fd := int(fw.Fd())
+	if !term.IsTerminal(uintptr(fd)) {
+		return defaultMarkdownRenderWidth
+	}
+	width, _, err := term.GetSize(uintptr(fd))
+	if err != nil || width <= 0 {
+		return defaultMarkdownRenderWidth
+	}
+	if width < minMarkdownRenderWidth {
+		return minMarkdownRenderWidth
+	}
+	return width
+}
 
 func deltaCellDuration(v, base time.Duration) string {
 	if base == 0 {

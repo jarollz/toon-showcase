@@ -35,7 +35,7 @@ func EmitMarkdownOutput(w io.Writer, rawPath, markdown string) error {
 		return nil
 	}
 	if trimmed == "stdout" {
-		rendered, err := RenderMarkdownDark(markdown)
+		rendered, err := renderMarkdownDarkWithWidth(markdown, resolveMarkdownRenderWidth(w))
 		if err != nil {
 			return fmt.Errorf("failed to render markdown: %w", err)
 		}

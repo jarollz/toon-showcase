@@ -5,6 +5,7 @@ go 1.25.8
 require (
 	charm.land/glamour/v2 v2.0.0
 	github.com/BurntSushi/toml v1.6.0
+	github.com/charmbracelet/x/term v0.2.2
 	github.com/toon-format/toon-go v0.0.0-20251202084852-7ca0e27c4e8c
 	github.com/vmihailenco/msgpack/v5 v5.4.1
 	go.yaml.in/yaml/v3 v3.0.4
@@ -18,7 +19,6 @@ require (
 	github.com/charmbracelet/ultraviolet v0.0.0-20251205161215-1948445e3318 // indirect
 	github.com/charmbracelet/x/ansi v0.11.6 // indirect
 	github.com/charmbracelet/x/exp/slice v0.0.0-20250327172914-2fdc97757edf // indirect
-	github.com/charmbracelet/x/term v0.2.2 // indirect
 	github.com/charmbracelet/x/termios v0.1.1 // indirect
 	github.com/charmbracelet/x/windows v0.2.2 // indirect
 	github.com/clipperhouse/displaywidth v0.11.0 // indirect
